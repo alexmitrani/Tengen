@@ -94,8 +94,8 @@ ui <- fluidPage(
   h1("Tengen-app"),
 
   tags$div(
-    "Registro de Partidas de ",
-    tags$a(href="https://www.clubtengen.cl/", "Club Tengen de Go"),
+    "Club Tengen de Go ",
+    tags$a(href="https://docs.google.com/forms/d/1iPusyVKjL9lTLXJ8PBK7oaNCWR6n8sT2tM0FybLwvVg/edit", "Registro de Partidas"),
     tags$br(),
     tags$br(),
   ),
