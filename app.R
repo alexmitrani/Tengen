@@ -121,9 +121,8 @@ ui <- fluidPage(
                                                       sort(unique(mydf$player_name)),
                                                       selected=NULL, multiple =TRUE)),
                                 column(6,
-                                       selectizeInput("opponent_name_Input_games", "opponent_name:",
-                                                      sort(unique(mydf$opponent_name)),
-                                                      selected=NULL, multiple =TRUE))
+                                       uiOutput("opponent_name_Input_games")
+                                )
 
                               ),
 
@@ -169,7 +168,21 @@ server <- function(input, output, session) {
 
   # menus --------------------------------------------------------------------
 
+  output$opponent_name_Input_games <- renderUI({
 
+    if (is.null(input$player_name_Input_games)==FALSE) {
+      menudata <- mydf %>%
+        filter(player_name %in% input$player_name_Input_games) %>%
+        arrange(desc(timestamp))
+    } else {
+      menudata <- mydf %>%
+        arrange(desc(timestamp))
+    }
+
+    selectizeInput("opponent_name_Input_games", "opponent_name:",
+                   choices = c(unique(menudata$opponent_name)), multiple =TRUE)
+
+  })
 
 
   # games -------------------------------------------------------------------
