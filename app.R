@@ -8,6 +8,7 @@ library(shiny)
 library(bslib)
 library(thematic)
 library(DT)
+library(lubridate)
 
 # theme -------------------------------------------------------------------
 
@@ -34,6 +35,8 @@ colnames(mydf)[8]="comment"
 
 mydf <- mydf %>%
   select(timestamp, player.1, player.2, board_size, handicap, player_won, comment)
+
+mydf$timestamp <- as.POSIXct(mydf$timestamp, format="%d/%m/%Y %H:%M:%S", tz = "UTC")
 
 mydf <- mydf %>%
   mutate(player_won = ifelse(player_won=="Negro", 1, 2))
