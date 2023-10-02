@@ -21,8 +21,6 @@ thematic_shiny(font = "auto")
 
 # Data processing ---------------------------------------------------------
 
-
-
 mydf <- gsheet2tbl('docs.google.com/spreadsheets/d/1WSHIHtk_oKzA5kruweD_3g3OH7DseTsgTLhEFTHsvFQ')
 
 colnames(mydf)[1]="fecha_hora"
@@ -50,6 +48,8 @@ mydf <- mydf %>%
 mydf <- mydf %>%
   mutate(victoria=ifelse(color==victoria, 1, 0))
 
+numero_partidas <- nrow(mydf)
+
 # corrections to persona names
 
 mydf <- mydf %>%
@@ -60,6 +60,10 @@ mydf <- mydf %>%
 
 mydf <- mydf %>%
   mutate(persona = ifelse(persona=="Panchito", "Francisco", persona))
+
+# count people
+
+numero_personas <- nrow(mydf %>% group_by(persona) %>% summarize(count = n()) %>% ungroup())
 
 # merge on opponente name
 
@@ -85,7 +89,9 @@ mydf <- mydf %>%
 mydf <- mydf %>%
   arrange(desc(fecha_hora))
 
+# Resumen de datos
 
+resumen_texto <- paste0("Hay ", numero_partidas, " partidas de ", numero_personas, " personas.")
 
 # Application -------------------------------------------------------------
 
