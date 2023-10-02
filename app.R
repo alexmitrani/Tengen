@@ -55,6 +55,12 @@ mydf <- mydf %>%
 mydf <- mydf %>%
   mutate(player_name = ifelse(player_name=="Anibal", "Aníbal", player_name))
 
+mydf <- mydf %>%
+  mutate(player_name = ifelse(player_name=="Nicolás", "Nico", player_name))
+
+mydf <- mydf %>%
+  mutate(player_name = ifelse(player_name=="Panchito", "Francisco", player_name))
+
 # merge on opponent name
 
 mydf2 <- mydf %>%
@@ -66,7 +72,9 @@ mydf <- mydf %>%
   left_join(mydf2) %>%
   mutate(player_colour = ifelse(player==1, "black", "white"))
 
-# prepare final data
+rm(mydf2)
+
+# prepare final games data
 
 mydf <- mydf %>%
   mutate(comment = ifelse(substr(comment, 1, 4)=="http", paste0("<a href='",  comment, "' target='_blank'>", comment, "</a>"), comment))
@@ -76,6 +84,7 @@ mydf <- mydf %>%
 
 mydf <- mydf %>%
   arrange(desc(timestamp))
+
 
 
 # Application -------------------------------------------------------------
@@ -103,37 +112,70 @@ ui <- fluidPage(
 
   mainPanel(
 
+      tags$br(),
+
+      fluidRow(
+
+        column(6,
+               selectizeInput("player_name_Input_games", "player_name:",
+                              sort(unique(mydf$player_name)),
+                              selected=NULL, multiple =TRUE)),
+        column(6,
+               uiOutput("opponent_name_Input_games")
+        )
+
+      ),
+
+      fluidRow(
+
+        column(6,
+               uiOutput("board_size_Input_games")
+        )
+
+      ),
+
 
      tabsetPanel(type = "tabs",
 
-                 # shows -------------------------------------------------------------------
 
-                 tabPanel("games",
+                # summary -----------------------------------------------------------------
+
+
+                 tabPanel("summary",
+
+                          tags$br(),
 
 
                           fluidPage(
 
-                            tags$br(),
 
-                              fluidRow(
+                            fluidRow(
 
-                                column(6,
-                                       selectizeInput("player_name_Input_games", "player_name:",
-                                                      sort(unique(mydf$player_name)),
-                                                      selected=NULL, multiple =TRUE)),
-                                column(6,
-                                       uiOutput("opponent_name_Input_games")
-                                )
+                              tags$br(),
 
-                              ),
+                              column(12,
 
-                              fluidRow(
+                                     # Create a new row for the table.
+                                     DT::dataTableOutput("summary_data_table")
 
-                                column(6,
-                                       uiOutput("board_size_Input_games")
-                                )
+                              )
 
-                              ),
+                            )
+
+                          )
+
+                 ),
+
+
+                 # games -------------------------------------------------------------------
+
+                 tabPanel("games",
+
+                          tags$br(),
+
+
+                          fluidPage(
+
 
                               fluidRow(
 
@@ -142,7 +184,7 @@ ui <- fluidPage(
                                 column(12,
 
                                        # Create a new row for the table.
-                                       DT::dataTableOutput("games_datatable")
+                                       DT::dataTableOutput("games_data_table")
 
                                 )
 
@@ -208,6 +250,51 @@ server <- function(input, output, session) {
   })
 
 
+  # summary -----------------------------------------------------------------
+
+  summary_data <- reactive({
+
+    summary_data <- mydf
+
+    if (is.null(input$player_name_Input_games)==FALSE) {
+      summary_data <- summary_data %>%
+        filter(player_name %in% input$player_name_Input_games)
+
+    }
+
+    if (is.null(input$opponent_name_Input_games)==FALSE) {
+      summary_data <- summary_data %>%
+        filter(opponent_name %in% input$opponent_name_Input_games)
+
+    }
+
+    if (is.null(input$board_size_Input_games)==FALSE) {
+      summary_data <- summary_data %>%
+        filter(board_size %in% input$board_size_Input_games)
+
+    }
+
+    summary_data <- summary_data %>%
+      group_by(player_name, opponent_name, board_size, handicap) %>%
+      summarize(games = n(), wins = sum(player_win), win_rate = round(wins / games, 2)) %>%
+      ungroup()
+
+    summary_data
+
+  })
+
+  output$summary_data_table <- DT::renderDataTable(DT::datatable({
+
+    data <- summary_data() %>%
+      arrange(player_name, opponent_name, board_size)
+
+    data
+
+  },
+  style = "bootstrap"))
+
+
+
   # games -------------------------------------------------------------------
 
   games_data <- reactive({
@@ -237,7 +324,7 @@ server <- function(input, output, session) {
 
   })
 
-  output$games_datatable <- DT::renderDataTable(DT::datatable({
+  output$games_data_table <- DT::renderDataTable(DT::datatable({
 
     data <- games_data() %>%
       arrange(desc(timestamp))
