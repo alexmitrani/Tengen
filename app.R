@@ -102,7 +102,7 @@ ui <- fluidPage(
   tags$div(
     tags$a(href="https://www.instagram.com/clubtengen/", "Club Tengen de Go"),
     tags$br(),
-    tags$a(href="https://docs.google.com/forms/d/1iPusyVKjL9lTLXJ8PBK7oaNCWR6n8sT2tM0FybLwvVg/edit", "Registrar una Partida"),
+    tags$a(href="https://forms.gle/KoPZKnSNhdHUZfh29", "Registrar una Partida"),
     tags$br(),
     tags$br(),
     # Para buscar nuevos datos de la planilla de entrada de datos
