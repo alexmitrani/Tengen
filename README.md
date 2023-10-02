@@ -1,2 +1,4 @@
 # Tengen
-Analysis and visualisation of the results of Go games.  
+[Aplicación web](https://alexmitrani.shinyapps.io/Tengen/) para presentar de una manera interactiva los datos de las partidas del [Club Tengen de Go](https://www.instagram.com/clubtengen/).  
+
+
