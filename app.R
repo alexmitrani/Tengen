@@ -39,6 +39,8 @@ mydf$fecha_hora <- as.POSIXct(mydf$fecha_hora, format="%d/%m/%Y %H:%M:%S", tz = 
 mydf <- mydf %>%
   mutate(victoria = ifelse(victoria=="Negro", 1, 2))
 
+numero_partidas <- nrow(mydf)
+
 mydf <- mydf %>%
   pivot_longer(cols = c(persona.1, persona.2), names_to = "color", values_to = "persona")
 
@@ -47,8 +49,6 @@ mydf <- mydf %>%
 
 mydf <- mydf %>%
   mutate(victoria=ifelse(color==victoria, 1, 0))
-
-numero_partidas <- nrow(mydf)
 
 # corrections to persona names
 
@@ -89,9 +89,12 @@ mydf <- mydf %>%
 mydf <- mydf %>%
   arrange(desc(fecha_hora))
 
+date_time_update <- as.character(mydf$fecha_hora[1])
+
 # Resumen de datos
 
-resumen_texto <- paste0("Hay ", numero_partidas, " partidas de ", numero_personas, " personas.")
+summary_text <- paste0("Hay ", numero_partidas, " partidas de ", numero_personas, " personas.")
+update_text <- paste0("Datos actualizados ", date_time_update, ".")
 
 # Application -------------------------------------------------------------
 
@@ -117,6 +120,13 @@ ui <- fluidPage(
 
 
   mainPanel(
+
+      tags$div(
+        print(summary_text),
+        tags$br(),
+        print(update_text),
+        tags$br(),
+      ),
 
       tags$br(),
 
@@ -206,8 +216,7 @@ ui <- fluidPage(
 
   tags$div(
     tags$br(),
-    "Contact the developer on ",
-    tags$a(rel="me", href="https://mastodon.online/@alex_mitrani_es", "Mastodon"),
+    tags$a(href="https://github.com/alexmitrani/Tengen", "Tengen-app GitHub"),
     tags$br()
   )
 
