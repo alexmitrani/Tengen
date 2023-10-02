@@ -25,65 +25,65 @@ thematic_shiny(font = "auto")
 
 mydf <- gsheet2tbl('docs.google.com/spreadsheets/d/1WSHIHtk_oKzA5kruweD_3g3OH7DseTsgTLhEFTHsvFQ')
 
-colnames(mydf)[1]="timestamp"
-colnames(mydf)[3]="player.1"
-colnames(mydf)[4]="player.2"
-colnames(mydf)[5]="board_size"
+colnames(mydf)[1]="fecha_hora"
+colnames(mydf)[3]="persona.1"
+colnames(mydf)[4]="persona.2"
+colnames(mydf)[5]="tablero"
 colnames(mydf)[6]="handicap"
-colnames(mydf)[7]="player_won"
-colnames(mydf)[8]="comment"
+colnames(mydf)[7]="victoria"
+colnames(mydf)[8]="comentario"
 
 mydf <- mydf %>%
-  select(timestamp, player.1, player.2, board_size, handicap, player_won, comment)
+  select(fecha_hora, persona.1, persona.2, tablero, handicap, victoria, comentario)
 
-mydf$timestamp <- as.POSIXct(mydf$timestamp, format="%d/%m/%Y %H:%M:%S", tz = "UTC")
-
-mydf <- mydf %>%
-  mutate(player_won = ifelse(player_won=="Negro", 1, 2))
+mydf$fecha_hora <- as.POSIXct(mydf$fecha_hora, format="%d/%m/%Y %H:%M:%S", tz = "UTC")
 
 mydf <- mydf %>%
-  pivot_longer(cols = c(player.1, player.2), names_to = "player", values_to = "player_name")
+  mutate(victoria = ifelse(victoria=="Negro", 1, 2))
 
 mydf <- mydf %>%
-  mutate(player = ifelse(player=="player.1", 1, 2))
+  pivot_longer(cols = c(persona.1, persona.2), names_to = "color", values_to = "persona")
 
 mydf <- mydf %>%
-  mutate(player_win=ifelse(player==player_won, 1, 0))
-
-# corrections to player names
+  mutate(color = ifelse(color=="persona.1", 1, 2))
 
 mydf <- mydf %>%
-  mutate(player_name = ifelse(player_name=="Anibal", "Aníbal", player_name))
+  mutate(victoria=ifelse(color==victoria, 1, 0))
+
+# corrections to persona names
 
 mydf <- mydf %>%
-  mutate(player_name = ifelse(player_name=="Nicolás", "Nico", player_name))
+  mutate(persona = ifelse(persona=="Anibal", "Aníbal", persona))
 
 mydf <- mydf %>%
-  mutate(player_name = ifelse(player_name=="Panchito", "Francisco", player_name))
+  mutate(persona = ifelse(persona=="Nicolás", "Nico", persona))
 
-# merge on opponent name
+mydf <- mydf %>%
+  mutate(persona = ifelse(persona=="Panchito", "Francisco", persona))
+
+# merge on opponente name
 
 mydf2 <- mydf %>%
-  select(timestamp, player, player_name) %>%
-  rename(opponent_name = player_name) %>%
-  mutate(player = if_else(player==1, 2, 1))
+  select(fecha_hora, persona, color) %>%
+  rename(opponente = persona) %>%
+  mutate(color = if_else(color==1, 2, 1))
 
 mydf <- mydf %>%
   left_join(mydf2) %>%
-  mutate(player_colour = ifelse(player==1, "black", "white"))
+  mutate(color = ifelse(color==1, "negro", "blanco"))
 
 rm(mydf2)
 
 # prepare final games data
 
 mydf <- mydf %>%
-  mutate(comment = ifelse(substr(comment, 1, 4)=="http", paste0("<a href='",  comment, "' target='_blank'>", comment, "</a>"), comment))
+  mutate(comentario = ifelse(substr(comentario, 1, 4)=="http", paste0("<a href='",  comentario, "' target='_blank'>", comentario, "</a>"), comentario))
 
 mydf <- mydf %>%
-  select(timestamp, board_size, handicap, player_name, player_colour, opponent_name, player_win, comment)
+  select(fecha_hora, tablero, handicap, persona, color, opponente, victoria, comentario)
 
 mydf <- mydf %>%
-  arrange(desc(timestamp))
+  arrange(desc(fecha_hora))
 
 
 
@@ -117,11 +117,11 @@ ui <- fluidPage(
       fluidRow(
 
         column(6,
-               selectizeInput("player_name_Input_games", "player_name:",
-                              sort(unique(mydf$player_name)),
+               selectizeInput("persona_Input_games", "persona:",
+                              sort(unique(mydf$persona)),
                               selected=NULL, multiple =TRUE)),
         column(6,
-               uiOutput("opponent_name_Input_games")
+               uiOutput("opponente_Input_games")
         )
 
       ),
@@ -129,7 +129,7 @@ ui <- fluidPage(
       fluidRow(
 
         column(6,
-               uiOutput("board_size_Input_games")
+               uiOutput("tablero_Input_games")
         )
 
       ),
@@ -138,10 +138,10 @@ ui <- fluidPage(
      tabsetPanel(type = "tabs",
 
 
-                # summary -----------------------------------------------------------------
+                # resumen -----------------------------------------------------------------
 
 
-                 tabPanel("summary",
+                 tabPanel("resumen",
 
                           tags$br(),
 
@@ -156,7 +156,7 @@ ui <- fluidPage(
                               column(12,
 
                                      # Create a new row for the table.
-                                     DT::dataTableOutput("summary_data_table")
+                                     DT::dataTableOutput("resumen_data_table")
 
                               )
 
@@ -169,7 +169,7 @@ ui <- fluidPage(
 
                  # games -------------------------------------------------------------------
 
-                 tabPanel("games",
+                 tabPanel("partidas",
 
                           tags$br(),
 
@@ -218,82 +218,82 @@ server <- function(input, output, session) {
 
   # menus --------------------------------------------------------------------
 
-  output$opponent_name_Input_games <- renderUI({
+  output$opponente_Input_games <- renderUI({
 
     menudata <- mydf %>%
-      arrange(desc(timestamp))
+      arrange(desc(fecha_hora))
 
-    if (is.null(input$player_name_Input_games)==FALSE) {
+    if (is.null(input$persona_Input_games)==FALSE) {
       menudata <- menudata %>%
-        filter(player_name %in% input$player_name_Input_games) %>%
-        arrange(desc(timestamp))
+        filter(persona %in% input$persona_Input_games) %>%
+        arrange(desc(fecha_hora))
     }
 
-    selectizeInput("opponent_name_Input_games", "opponent_name:",
-                   choices = c(unique(menudata$opponent_name)), multiple =TRUE)
+    selectizeInput("opponente_Input_games", "opponente:",
+                   choices = c(unique(menudata$opponente)), multiple =TRUE)
 
   })
 
-  output$board_size_Input_games <- renderUI({
+  output$tablero_Input_games <- renderUI({
 
     menudata <- mydf %>%
-      arrange(desc(timestamp))
+      arrange(desc(fecha_hora))
 
-    if (is.null(input$player_name_Input_games)==FALSE) {
+    if (is.null(input$persona_Input_games)==FALSE) {
       menudata <- menudata %>%
-        filter(player_name %in% input$player_name_Input_games) %>%
-        arrange(desc(timestamp))
+        filter(persona %in% input$persona_Input_games) %>%
+        arrange(desc(fecha_hora))
     }
 
-    if (is.null(input$opponent_name_Input_games)==FALSE) {
+    if (is.null(input$opponente_Input_games)==FALSE) {
       menudata <- menudata %>%
-        filter(opponent_name %in% input$opponent_name_Input_games) %>%
-        arrange(desc(timestamp))
+        filter(opponente %in% input$opponente_Input_games) %>%
+        arrange(desc(fecha_hora))
     }
 
-    selectizeInput("board_size_Input_games", "board_size:",
-                   choices = c(unique(menudata$board_size)), multiple =TRUE)
+    selectizeInput("tablero_Input_games", "tablero:",
+                   choices = c(unique(menudata$tablero)), multiple =TRUE)
 
   })
 
 
-  # summary -----------------------------------------------------------------
+  # resumen -----------------------------------------------------------------
 
-  summary_data <- reactive({
+  resumen_data <- reactive({
 
-    summary_data <- mydf
+    resumen_data <- mydf
 
-    if (is.null(input$player_name_Input_games)==FALSE) {
-      summary_data <- summary_data %>%
-        filter(player_name %in% input$player_name_Input_games)
-
-    }
-
-    if (is.null(input$opponent_name_Input_games)==FALSE) {
-      summary_data <- summary_data %>%
-        filter(opponent_name %in% input$opponent_name_Input_games)
+    if (is.null(input$persona_Input_games)==FALSE) {
+      resumen_data <- resumen_data %>%
+        filter(persona %in% input$persona_Input_games)
 
     }
 
-    if (is.null(input$board_size_Input_games)==FALSE) {
-      summary_data <- summary_data %>%
-        filter(board_size %in% input$board_size_Input_games)
+    if (is.null(input$opponente_Input_games)==FALSE) {
+      resumen_data <- resumen_data %>%
+        filter(opponente %in% input$opponente_Input_games)
 
     }
 
-    summary_data <- summary_data %>%
-      group_by(player_name, opponent_name, board_size, handicap) %>%
-      summarize(games = n(), wins = sum(player_win), win_rate = round(wins / games, 2)) %>%
+    if (is.null(input$tablero_Input_games)==FALSE) {
+      resumen_data <- resumen_data %>%
+        filter(tablero %in% input$tablero_Input_games)
+
+    }
+
+    resumen_data <- resumen_data %>%
+      group_by(persona, opponente, tablero, handicap) %>%
+      summarize(games = n(), victorias = sum(victoria), tasa_victoria = round(victorias / games, 2)) %>%
       ungroup()
 
-    summary_data
+    resumen_data
 
   })
 
-  output$summary_data_table <- DT::renderDataTable(DT::datatable({
+  output$resumen_data_table <- DT::renderDataTable(DT::datatable({
 
-    data <- summary_data() %>%
-      arrange(player_name, opponent_name, board_size)
+    data <- resumen_data() %>%
+      arrange(persona, opponente, tablero)
 
     data
 
@@ -309,21 +309,21 @@ server <- function(input, output, session) {
 
     games_data <- mydf
 
-    if (is.null(input$player_name_Input_games)==FALSE) {
+    if (is.null(input$persona_Input_games)==FALSE) {
       games_data <- games_data %>%
-        filter(player_name %in% input$player_name_Input_games)
+        filter(persona %in% input$persona_Input_games)
 
     }
 
-    if (is.null(input$opponent_name_Input_games)==FALSE) {
+    if (is.null(input$opponente_Input_games)==FALSE) {
       games_data <- games_data %>%
-        filter(opponent_name %in% input$opponent_name_Input_games)
+        filter(opponente %in% input$opponente_Input_games)
 
     }
 
-    if (is.null(input$board_size_Input_games)==FALSE) {
+    if (is.null(input$tablero_Input_games)==FALSE) {
       games_data <- games_data %>%
-        filter(board_size %in% input$board_size_Input_games)
+        filter(tablero %in% input$tablero_Input_games)
 
     }
 
@@ -334,7 +334,7 @@ server <- function(input, output, session) {
   output$games_data_table <- DT::renderDataTable(DT::datatable({
 
     data <- games_data() %>%
-      arrange(desc(timestamp))
+      arrange(desc(fecha_hora))
 
     data
 
