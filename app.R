@@ -103,9 +103,9 @@ ui <- fluidPage(
   h1("Tengen-app"),
 
   tags$div(
-    "Club Tengen de Go ",
-    tags$a(href="https://docs.google.com/forms/d/1iPusyVKjL9lTLXJ8PBK7oaNCWR6n8sT2tM0FybLwvVg/edit", "Registro de Partidas"),
+    tags$a(href="https://www.instagram.com/clubtengen/", "Club Tengen de Go"),
     tags$br(),
+    tags$a(href="https://docs.google.com/forms/d/1iPusyVKjL9lTLXJ8PBK7oaNCWR6n8sT2tM0FybLwvVg/edit", "Registrar una Partida"),
     tags$br(),
   ),
 
@@ -196,7 +196,14 @@ ui <- fluidPage(
 
                  )
 
-     )
+     ),
+
+  tags$div(
+    tags$br(),
+    "Contact the developer on ",
+    tags$a(rel="me", href="https://mastodon.online/@alex_mitrani_es", "Mastodon"),
+    tags$br()
+  )
 
   )
 
