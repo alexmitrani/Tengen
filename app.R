@@ -116,6 +116,7 @@ ui <- fluidPage(
                             tags$br(),
 
                               fluidRow(
+
                                 column(6,
                                        selectizeInput("player_name_Input_games", "player_name:",
                                                       sort(unique(mydf$player_name)),
@@ -127,10 +128,10 @@ ui <- fluidPage(
                               ),
 
                               fluidRow(
+
                                 column(6,
-                                       selectizeInput("board_size_Input_games", "board_size:",
-                                                      sort(unique(mydf$board_size)),
-                                                      selected=NULL, multiple =TRUE))
+                                       uiOutput("board_size_Input_games")
+                                )
 
                               ),
 
@@ -170,17 +171,39 @@ server <- function(input, output, session) {
 
   output$opponent_name_Input_games <- renderUI({
 
+    menudata <- mydf %>%
+      arrange(desc(timestamp))
+
     if (is.null(input$player_name_Input_games)==FALSE) {
-      menudata <- mydf %>%
+      menudata <- menudata %>%
         filter(player_name %in% input$player_name_Input_games) %>%
-        arrange(desc(timestamp))
-    } else {
-      menudata <- mydf %>%
         arrange(desc(timestamp))
     }
 
     selectizeInput("opponent_name_Input_games", "opponent_name:",
                    choices = c(unique(menudata$opponent_name)), multiple =TRUE)
+
+  })
+
+  output$board_size_Input_games <- renderUI({
+
+    menudata <- mydf %>%
+      arrange(desc(timestamp))
+
+    if (is.null(input$player_name_Input_games)==FALSE) {
+      menudata <- menudata %>%
+        filter(player_name %in% input$player_name_Input_games) %>%
+        arrange(desc(timestamp))
+    }
+
+    if (is.null(input$opponent_name_Input_games)==FALSE) {
+      menudata <- menudata %>%
+        filter(opponent_name %in% input$opponent_name_Input_games) %>%
+        arrange(desc(timestamp))
+    }
+
+    selectizeInput("board_size_Input_games", "board_size:",
+                   choices = c(unique(menudata$board_size)), multiple =TRUE)
 
   })
 
