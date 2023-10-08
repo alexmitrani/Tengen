@@ -97,10 +97,12 @@ ui <- fluidPage(
 
   tags$style(type = "text/css", "html, body {width:100%; height:100%}"),
 
-  h1("Tengen-app"),
-
   tags$div(
+    tags$br(),
     tags$a(href="https://online-go.com/group/615", target='_blank', "Club Tengen de Go"),
+    tags$br(),
+    tags$br(),
+    img(src = "tengen.png", height = 114, width = 344),
     tags$br(),
     tags$br(),
     # Para buscar nuevos datos de la planilla de entrada de datos
