@@ -100,9 +100,7 @@ ui <- fluidPage(
   h1("Tengen-app"),
 
   tags$div(
-    tags$a(href="https://www.instagram.com/clubtengen/", "Club Tengen de Go"),
-    tags$br(),
-    tags$a(href="https://forms.gle/KoPZKnSNhdHUZfh29", "Registrar una Partida"),
+    tags$a(href="https://online-go.com/group/615", target='_blank', "Club Tengen de Go"),
     tags$br(),
     tags$br(),
     # Para buscar nuevos datos de la planilla de entrada de datos
@@ -399,7 +397,7 @@ server <- function(input, output, session) {
   output$resumen_data_table <- DT::renderDataTable(DT::datatable({
 
     data <- resumen_data() %>%
-      arrange(persona, opponente, tablero)
+      arrange(desc(games), desc(tasa_victoria))
 
     data
 
