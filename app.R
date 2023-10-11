@@ -9,6 +9,8 @@ library(bslib)
 library(thematic)
 library(DT)
 library(lubridate)
+library(ggplot2)
+library(plotly)
 library(PlayerRatings)
 
 # theme -------------------------------------------------------------------
@@ -94,7 +96,22 @@ thematic_shiny(font = "auto")
   handicap_vector <- as.vector(mydf$handicap)
   sobj <- glicko2(ratings_data, init = c(1500,350,0.06), gamma = handicap_vector, history = TRUE)
   resultados <- sobj[["ratings"]]
-  plot(sobj, npl=20)
+
+  resultados <- resultados %>%
+    rename(persona = Player,
+           rating = Rating,
+           deviación = Deviation,
+           volatilidad = Volatility,
+           partidas = Games,
+           victorias = Win,
+           derrotas = Loss)
+
+  resultados <- resultados %>%
+    select(persona, rating, deviación, partidas, victorias, derrotas)
+
+  resultados <- resultados %>%
+    mutate(rating = round(rating, 0),
+           deviación = round(deviación, 0))
 
   history <- as.data.frame(sobj[["history"]])
   history_long <- as.data.frame(t(history))
@@ -114,20 +131,16 @@ thematic_shiny(font = "auto")
     select(periodo, tp)
 
   history_long2 <- history_long2 %>%
-    mutate(periodo = as.numeric(periodo))
+    mutate(periodo = as.numeric(periodo)) %>%
+    rename(persona = name,
+           rating = value)
 
   history_long2 <- history_long2 %>%
     left_join(fecha)
 
   history_long2 <- history_long2 %>%
-    mutate(fecha = as.Date(as.character(tp), "%Y%m%d"))
-
-  p <- ggplot(history_long2, aes(x = fecha, y = value, color = name)) +
-    geom_line() +
-    xlab("fecha") +
-    ylab("rating")
-
-  plotly::ggplotly(p)
+    mutate(fecha = as.Date(as.character(tp), "%Y%m%d")) %>%
+    select(fecha, persona, rating)
 
 
 # Application -------------------------------------------------------------
@@ -169,26 +182,64 @@ ui <- fluidPage(
 
       fluidRow(
 
-        column(6,
+        column(12,
                selectizeInput("persona_Input_games", "persona:",
                               sort(unique(mydf$persona)),
                               selected=NULL, multiple =TRUE)),
-        column(6,
-               uiOutput("oponente_Input_games")
-        )
+        # column(6,
+        #        uiOutput("oponente_Input_games")
+        # )
 
       ),
 
-      fluidRow(
-
-        column(6,
-               uiOutput("tablero_Input_games")
-        )
-
-      ),
+      # fluidRow(
+      #
+      #   column(6,
+      #          uiOutput("tablero_Input_games")
+      #   )
+      #
+      # ),
 
 
      tabsetPanel(type = "tabs",
+
+                 # rating -----------------------------------------------------------------
+
+
+                 tabPanel("rating",
+
+                          tags$br(),
+
+
+                          fluidPage(
+
+                            # Graph
+
+                            fluidRow(
+                              column(12,
+                                     plotlyOutput("history_plot")
+                              )
+                            ),
+
+                            hr(),
+
+
+                            fluidRow(
+
+                              tags$br(),
+
+                              column(12,
+
+                                     # Create a new row for the table.
+                                     DT::dataTableOutput("rating_data_table")
+
+                              )
+
+                            )
+
+                          )
+
+                 ),
 
 
                 # resumen -----------------------------------------------------------------
@@ -351,43 +402,43 @@ server <- function(input, output, session) {
 
   # menus --------------------------------------------------------------------
 
-  output$oponente_Input_games <- renderUI({
-
-    menudata <- mydf %>%
-      arrange(desc(fecha_hora))
-
-    if (is.null(input$persona_Input_games)==FALSE) {
-      menudata <- menudata %>%
-        filter(persona %in% input$persona_Input_games) %>%
-        arrange(desc(fecha_hora))
-    }
-
-    selectizeInput("oponente_Input_games", "oponente:",
-                   choices = c(unique(menudata$oponente)), multiple =TRUE)
-
-  })
-
-  output$tablero_Input_games <- renderUI({
-
-    menudata <- mydf %>%
-      arrange(desc(fecha_hora))
-
-    if (is.null(input$persona_Input_games)==FALSE) {
-      menudata <- menudata %>%
-        filter(persona %in% input$persona_Input_games) %>%
-        arrange(desc(fecha_hora))
-    }
-
-    if (is.null(input$oponente_Input_games)==FALSE) {
-      menudata <- menudata %>%
-        filter(oponente %in% input$oponente_Input_games) %>%
-        arrange(desc(fecha_hora))
-    }
-
-    selectizeInput("tablero_Input_games", "tablero:",
-                   choices = c(unique(menudata$tablero)), multiple =TRUE)
-
-  })
+  # output$oponente_Input_games <- renderUI({
+  #
+  #   menudata <- mydf %>%
+  #     arrange(desc(fecha_hora))
+  #
+  #   if (is.null(input$persona_Input_games)==FALSE) {
+  #     menudata <- menudata %>%
+  #       filter(persona %in% input$persona_Input_games) %>%
+  #       arrange(desc(fecha_hora))
+  #   }
+  #
+  #   selectizeInput("oponente_Input_games", "oponente:",
+  #                  choices = c(unique(menudata$oponente)), multiple =TRUE)
+  #
+  # })
+  #
+  # output$tablero_Input_games <- renderUI({
+  #
+  #   menudata <- mydf %>%
+  #     arrange(desc(fecha_hora))
+  #
+  #   if (is.null(input$persona_Input_games)==FALSE) {
+  #     menudata <- menudata %>%
+  #       filter(persona %in% input$persona_Input_games) %>%
+  #       arrange(desc(fecha_hora))
+  #   }
+  #
+  #   if (is.null(input$oponente_Input_games)==FALSE) {
+  #     menudata <- menudata %>%
+  #       filter(oponente %in% input$oponente_Input_games) %>%
+  #       arrange(desc(fecha_hora))
+  #   }
+  #
+  #   selectizeInput("tablero_Input_games", "tablero:",
+  #                  choices = c(unique(menudata$tablero)), multiple =TRUE)
+  #
+  # })
 
 
   # estado ------------------------------------------------------------------
@@ -409,6 +460,60 @@ server <- function(input, output, session) {
     date_time_update
   })
 
+  # rating -----------------------------------------------------------------
+
+
+  history_data <- reactive({
+
+    history_data <- history_long2
+
+    if (is.null(input$persona_Input_games)==FALSE) {
+      history_data <- history_data %>%
+        filter(persona %in% input$persona_Input_games)
+
+    }
+
+    history_data
+
+  })
+
+  output$history_plot <- renderPlotly({
+
+    p <- ggplot(history_data(), aes(x = fecha, y = rating, color = persona)) +
+      geom_line() +
+      xlab("fecha") +
+      ylab("rating")
+
+    plotly::ggplotly(p)
+
+  })
+
+  rating_data <- reactive({
+
+    rating_data <- resultados
+
+    if (is.null(input$persona_Input_games)==FALSE) {
+      rating_data <- rating_data %>%
+        filter(persona %in% input$persona_Input_games)
+
+    }
+
+    rating_data
+
+  })
+
+  output$rating_data_table <- DT::renderDataTable(DT::datatable({
+
+    data <- rating_data() %>%
+      arrange(desc(rating))
+
+    data
+
+  },
+  style = "bootstrap"))
+
+
+
   # resumen -----------------------------------------------------------------
 
   resumen_data <- reactive({
@@ -421,17 +526,17 @@ server <- function(input, output, session) {
 
     }
 
-    if (is.null(input$oponente_Input_games)==FALSE) {
-      resumen_data <- resumen_data %>%
-        filter(oponente %in% input$oponente_Input_games)
-
-    }
-
-    if (is.null(input$tablero_Input_games)==FALSE) {
-      resumen_data <- resumen_data %>%
-        filter(tablero %in% input$tablero_Input_games)
-
-    }
+    # if (is.null(input$oponente_Input_games)==FALSE) {
+    #   resumen_data <- resumen_data %>%
+    #     filter(oponente %in% input$oponente_Input_games)
+    #
+    # }
+    #
+    # if (is.null(input$tablero_Input_games)==FALSE) {
+    #   resumen_data <- resumen_data %>%
+    #     filter(tablero %in% input$tablero_Input_games)
+    #
+    # }
 
     resumen_data <- resumen_data %>%
       group_by(persona, oponente, tablero, handicap) %>%
@@ -467,17 +572,17 @@ server <- function(input, output, session) {
 
     }
 
-    if (is.null(input$oponente_Input_games)==FALSE) {
-      games_data <- games_data %>%
-        filter(oponente %in% input$oponente_Input_games)
-
-    }
-
-    if (is.null(input$tablero_Input_games)==FALSE) {
-      games_data <- games_data %>%
-        filter(tablero %in% input$tablero_Input_games)
-
-    }
+    # if (is.null(input$oponente_Input_games)==FALSE) {
+    #   games_data <- games_data %>%
+    #     filter(oponente %in% input$oponente_Input_games)
+    #
+    # }
+    #
+    # if (is.null(input$tablero_Input_games)==FALSE) {
+    #   games_data <- games_data %>%
+    #     filter(tablero %in% input$tablero_Input_games)
+    #
+    # }
 
     games_data
 
