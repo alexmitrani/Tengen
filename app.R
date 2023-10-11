@@ -183,7 +183,7 @@ ui <- fluidPage(
       fluidRow(
 
         column(12,
-               selectizeInput("persona_Input_games", "persona:",
+               selectizeInput("persona_Input_games", "personas:",
                               sort(unique(mydf$persona)),
                               selected=NULL, multiple =TRUE)),
         # column(6,
