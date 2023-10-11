@@ -9,6 +9,7 @@ library(bslib)
 library(thematic)
 library(DT)
 library(lubridate)
+library(PlayerRatings)
 
 # theme -------------------------------------------------------------------
 
@@ -82,6 +83,26 @@ thematic_shiny(font = "auto")
 
   mydf <- mydf %>%
     arrange(desc(fecha_hora))
+
+  # data for ratings calculation
+
+  ratings_data <- mydf %>%
+    mutate(tp = as.integer(format(mydf$fecha_hora, "%Y%m%d"))) %>%
+    filter(color=="negro") %>%
+    select(tp, persona, opponente, victoria)
+
+  handicap_vector <- as.vector(mydf$handicap)
+  sobj <- glicko2(ratings_data, init = c(1500,350,0.06), gamma = handicap_vector, history = TRUE)
+  resultados <- sobj[["ratings"]]
+  plot(sobj, npl=20)
+
+  history <- as.data.frame(sobj[["history"]])
+  history_long <- as.data.frame(t(history))
+  history_long <- rownames_to_column(history_long, var = "rowname") %>% as_tibble()
+  history_long <- history_long %>% filter(grepl('Rating', rowname))
+  history_long <- history_long %>%
+    mutate(rowname = str_replace(history_long$rowname, ".Rating", ""))
+  history_long2 <- history_long %>% pivot_longer(cols = !rowname)
 
 
 # Application -------------------------------------------------------------
