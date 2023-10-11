@@ -100,18 +100,18 @@ thematic_shiny(font = "auto")
   resultados <- resultados %>%
     rename(persona = Player,
            rating = Rating,
-           deviación = Deviation,
+           desviación = Deviation,
            volatilidad = Volatility,
            partidas = Games,
            victorias = Win,
            derrotas = Loss)
 
   resultados <- resultados %>%
-    select(persona, rating, deviación, partidas, victorias, derrotas)
+    select(persona, rating, desviación, partidas, victorias, derrotas)
 
   resultados <- resultados %>%
     mutate(rating = round(rating, 0),
-           deviación = round(deviación, 0))
+           desviación = round(desviación, 0))
 
   history <- as.data.frame(sobj[["history"]])
   history_long <- as.data.frame(t(history))
