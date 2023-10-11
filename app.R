@@ -60,11 +60,11 @@ thematic_shiny(font = "auto")
   mydf <- mydf %>%
     mutate(persona = ifelse(persona=="Panchito", "Francisco", persona))
 
-  # merge on opponente name
+  # merge on oponente name
 
   mydf2 <- mydf %>%
     select(fecha_hora, persona, color) %>%
-    rename(opponente = persona) %>%
+    rename(oponente = persona) %>%
     mutate(color = if_else(color==1, 2, 1))
 
   mydf <- mydf %>%
@@ -79,7 +79,7 @@ thematic_shiny(font = "auto")
     mutate(comentario = ifelse(substr(comentario, 1, 4)=="http", paste0("<a href='",  comentario, "' target='_blank'>", comentario, "</a>"), comentario))
 
   mydf <- mydf %>%
-    select(fecha_hora, tablero, handicap, persona, color, opponente, victoria, comentario)
+    select(fecha_hora, tablero, handicap, persona, color, oponente, victoria, comentario)
 
   mydf <- mydf %>%
     arrange(desc(fecha_hora))
@@ -89,7 +89,7 @@ thematic_shiny(font = "auto")
   ratings_data <- mydf %>%
     mutate(tp = as.integer(format(mydf$fecha_hora, "%Y%m%d"))) %>%
     filter(color=="negro") %>%
-    select(tp, persona, opponente, victoria)
+    select(tp, persona, oponente, victoria)
 
   handicap_vector <- as.vector(mydf$handicap)
   sobj <- glicko2(ratings_data, init = c(1500,350,0.06), gamma = handicap_vector, history = TRUE)
@@ -98,11 +98,36 @@ thematic_shiny(font = "auto")
 
   history <- as.data.frame(sobj[["history"]])
   history_long <- as.data.frame(t(history))
-  history_long <- rownames_to_column(history_long, var = "rowname") %>% as_tibble()
-  history_long <- history_long %>% filter(grepl('Rating', rowname))
+  history_long <- rownames_to_column(history_long, var = "periodo") %>% as_tibble()
+  history_long <- history_long %>% filter(grepl('Rating', periodo))
   history_long <- history_long %>%
-    mutate(rowname = str_replace(history_long$rowname, ".Rating", ""))
-  history_long2 <- history_long %>% pivot_longer(cols = !rowname)
+    mutate(periodo = str_replace(history_long$periodo, ".Rating", ""))
+
+  history_long2 <- history_long %>%
+    pivot_longer(cols = !periodo)
+
+  fecha <- ratings_data %>% group_by(tp) %>%
+    summarize(count = n()) %>%
+    ungroup() %>%
+    arrange(tp) %>%
+    mutate(periodo = row_number()) %>%
+    select(periodo, tp)
+
+  history_long2 <- history_long2 %>%
+    mutate(periodo = as.numeric(periodo))
+
+  history_long2 <- history_long2 %>%
+    left_join(fecha)
+
+  history_long2 <- history_long2 %>%
+    mutate(fecha = as.Date(as.character(tp), "%Y%m%d"))
+
+  p <- ggplot(history_long2, aes(x = fecha, y = value, color = name)) +
+    geom_line() +
+    xlab("fecha") +
+    ylab("rating")
+
+  plotly::ggplotly(p)
 
 
 # Application -------------------------------------------------------------
@@ -149,7 +174,7 @@ ui <- fluidPage(
                               sort(unique(mydf$persona)),
                               selected=NULL, multiple =TRUE)),
         column(6,
-               uiOutput("opponente_Input_games")
+               uiOutput("oponente_Input_games")
         )
 
       ),
@@ -291,11 +316,11 @@ server <- function(input, output, session) {
 
     numero_personas <- nrow(mydf %>% group_by(persona) %>% summarize(count = n()) %>% ungroup())
 
-    # merge on opponente name
+    # merge on oponente name
 
     mydf2 <- mydf %>%
       select(fecha_hora, persona, color) %>%
-      rename(opponente = persona) %>%
+      rename(oponente = persona) %>%
       mutate(color = if_else(color==1, 2, 1))
 
     mydf <- mydf %>%
@@ -310,7 +335,7 @@ server <- function(input, output, session) {
       mutate(comentario = ifelse(substr(comentario, 1, 4)=="http", paste0("<a href='",  comentario, "' target='_blank'>", comentario, "</a>"), comentario))
 
     mydf <- mydf %>%
-      select(fecha_hora, tablero, handicap, persona, color, opponente, victoria, comentario)
+      select(fecha_hora, tablero, handicap, persona, color, oponente, victoria, comentario)
 
     mydf <- mydf %>%
       arrange(desc(fecha_hora))
@@ -326,7 +351,7 @@ server <- function(input, output, session) {
 
   # menus --------------------------------------------------------------------
 
-  output$opponente_Input_games <- renderUI({
+  output$oponente_Input_games <- renderUI({
 
     menudata <- mydf %>%
       arrange(desc(fecha_hora))
@@ -337,8 +362,8 @@ server <- function(input, output, session) {
         arrange(desc(fecha_hora))
     }
 
-    selectizeInput("opponente_Input_games", "opponente:",
-                   choices = c(unique(menudata$opponente)), multiple =TRUE)
+    selectizeInput("oponente_Input_games", "oponente:",
+                   choices = c(unique(menudata$oponente)), multiple =TRUE)
 
   })
 
@@ -353,9 +378,9 @@ server <- function(input, output, session) {
         arrange(desc(fecha_hora))
     }
 
-    if (is.null(input$opponente_Input_games)==FALSE) {
+    if (is.null(input$oponente_Input_games)==FALSE) {
       menudata <- menudata %>%
-        filter(opponente %in% input$opponente_Input_games) %>%
+        filter(oponente %in% input$oponente_Input_games) %>%
         arrange(desc(fecha_hora))
     }
 
@@ -396,9 +421,9 @@ server <- function(input, output, session) {
 
     }
 
-    if (is.null(input$opponente_Input_games)==FALSE) {
+    if (is.null(input$oponente_Input_games)==FALSE) {
       resumen_data <- resumen_data %>%
-        filter(opponente %in% input$opponente_Input_games)
+        filter(oponente %in% input$oponente_Input_games)
 
     }
 
@@ -409,7 +434,7 @@ server <- function(input, output, session) {
     }
 
     resumen_data <- resumen_data %>%
-      group_by(persona, opponente, tablero, handicap) %>%
+      group_by(persona, oponente, tablero, handicap) %>%
       summarize(games = n(), victorias = sum(victoria), tasa_victoria = round(victorias / games, 2)) %>%
       ungroup()
 
@@ -442,9 +467,9 @@ server <- function(input, output, session) {
 
     }
 
-    if (is.null(input$opponente_Input_games)==FALSE) {
+    if (is.null(input$oponente_Input_games)==FALSE) {
       games_data <- games_data %>%
-        filter(opponente %in% input$opponente_Input_games)
+        filter(oponente %in% input$oponente_Input_games)
 
     }
 
