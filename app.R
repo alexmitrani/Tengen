@@ -1,6 +1,6 @@
 
 
-# Dependencies ------------------------------------------------------------
+# dependencies ------------------------------------------------------------
 
 library(tidyverse)
 library(gsheet)
@@ -32,8 +32,11 @@ handicap_factor_9x9 <- 4
 handicap_factor_13x13 <- (16/9)
 handicap_factor_19x19 <- 1
 
+# cantidad mínima de partidas para incluir en la página de ratings:
+partidas_requeridas_para_rating <- 3
 
-# Data processing ---------------------------------------------------------
+
+# data processing ---------------------------------------------------------
 
   mydf <- gsheet2tbl('docs.google.com/spreadsheets/d/1WSHIHtk_oKzA5kruweD_3g3OH7DseTsgTLhEFTHsvFQ')
 
@@ -138,6 +141,9 @@ handicap_factor_19x19 <- 1
   resultados <- resultados %>%
     mutate(rating = round(rating, 0),
            desviación = round(desviación, 0))
+
+  resultados <- resultados %>%
+    filter(partidas>=partidas_requeridas_para_rating)
 
   history <- as.data.frame(sobj[["history"]])
   history_long <- as.data.frame(t(history))
