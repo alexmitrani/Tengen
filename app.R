@@ -22,6 +22,17 @@ my_theme <- bs_theme(bootswatch = "darkly",
 thematic_shiny(font = "auto")
 
 
+# supuestos ---------------------------------------------------------------
+
+# factores de equivalencia de piedras handicap para distintos tamaños de tablero.
+# detalles sobre los supuestos adoptados y discusión de otras opciones:
+# https://web.archive.org/web/20231014034254/https://forums.online-go.com/t/ranking-and-handicaps/17739/26?u=alemitrani
+
+handicap_factor_9x9 <- 4
+handicap_factor_13x13 <- (16/9)
+handicap_factor_19x19 <- 1
+
+
 # Data processing ---------------------------------------------------------
 
   mydf <- gsheet2tbl('docs.google.com/spreadsheets/d/1WSHIHtk_oKzA5kruweD_3g3OH7DseTsgTLhEFTHsvFQ')
@@ -83,12 +94,15 @@ thematic_shiny(font = "auto")
   mydf <- mydf %>%
     select(fecha_hora, tablero, handicap, persona, color, oponente, victoria, comentario)
 
+
+  # aplicación de factores de equivalencia de piedras handicap para distintos tamaños de tablero.
+
   mydf <- mydf %>%
     mutate(handicap_factor =
              case_when(
-               tablero == "9 x 9" ~ 4,
-               tablero == "13 x 13" ~ (16/9),
-               tablero == "19 x 19" ~ 1
+               tablero == "9 x 9" ~ handicap_factor_9x9,
+               tablero == "13 x 13" ~ handicap_factor_13x13,
+               tablero == "19 x 19" ~ handicap_factor_19x19
                )
            )
 
