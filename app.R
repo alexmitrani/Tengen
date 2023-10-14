@@ -84,6 +84,18 @@ thematic_shiny(font = "auto")
     select(fecha_hora, tablero, handicap, persona, color, oponente, victoria, comentario)
 
   mydf <- mydf %>%
+    mutate(handicap_factor =
+             case_when(
+               tablero == "9 x 9" ~ 4,
+               tablero == "13 x 13" ~ (16/9),
+               tablero == "19 x 19" ~ 1
+               )
+           )
+
+  mydf <- mydf %>%
+    mutate(handicap_adj = handicap*handicap_factor)
+
+  mydf <- mydf %>%
     arrange(desc(fecha_hora))
 
   # data for ratings calculation
@@ -93,7 +105,7 @@ thematic_shiny(font = "auto")
     filter(color=="negro") %>%
     select(tp, persona, oponente, victoria)
 
-  handicap_vector <- as.vector(mydf$handicap)
+  handicap_vector <- as.vector(mydf$handicap_adj)
   sobj <- glicko2(ratings_data, init = c(1500,350,0.06), gamma = handicap_vector, history = TRUE)
   resultados <- sobj[["ratings"]]
 
