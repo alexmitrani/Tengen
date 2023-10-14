@@ -32,15 +32,15 @@ handicap_factor_9x9 <- 4
 handicap_factor_13x13 <- (16/9)
 handicap_factor_19x19 <- 1
 
-# cantidad mínima de partidas para incluir en la página de ratings:
-partidas_requeridas_para_rating <- 3
-
 # referencia: https://github.com/online-go/online-go.com/blob/2e9ccea12b16fefeba8fb86e0312875964e16857/src/lib/rank_utils.ts#L50C1-L51C17
 const_a <- 525
 const_c <- 23.15
 
 # ajustado considerando los rangos de Avelio, Nico, Alex y Pandora
 const_d <- -28.5
+
+# máximo de personas para mostrar a la vez en el gráfico
+personas_max_ratings_grafico <- 10
 
 
 # data processing ---------------------------------------------------------
@@ -152,8 +152,10 @@ const_d <- -28.5
     mutate(rating = round(rating, 0),
            desviación = round(desviación, 0))
 
-  resultados <- resultados %>%
-    filter(partidas>=partidas_requeridas_para_rating)
+  persona_incluir <- resultados %>%
+    arrange(desc(partidas)) %>%
+    mutate(incluir = ifelse(row_number()<=personas_max_ratings_grafico, 1, 0)) %>%
+    select(persona, incluir)
 
   history <- as.data.frame(sobj[["history"]])
   history_long <- as.data.frame(t(history))
@@ -183,6 +185,9 @@ const_d <- -28.5
   history_long2 <- history_long2 %>%
     mutate(fecha = as.Date(as.character(tp), "%Y%m%d")) %>%
     select(fecha, persona, rating)
+
+  history_long2 <- history_long2 %>%
+    left_join(persona_incluir)
 
 
 # Application -------------------------------------------------------------
@@ -512,6 +517,11 @@ server <- function(input, output, session) {
     if (is.null(input$persona_Input_games)==FALSE) {
       history_data <- history_data %>%
         filter(persona %in% input$persona_Input_games)
+
+    } else {
+
+      history_data <- history_data %>%
+        filter(incluir==1)
 
     }
 
