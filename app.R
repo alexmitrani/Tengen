@@ -532,10 +532,14 @@ server <- function(input, output, session) {
 
   output$history_plot <- renderPlotly({
 
+    ymin <- floor(min(history_data()$rango))
+    ymax <- ceiling(max(history_data()$rango))
+
     p <- ggplot(history_data(), aes(x = fecha, y = rango, color = persona)) +
       geom_line() +
       xlab("fecha") +
-      ylab("rango")
+      ylab("rango") +
+      scale_y_continuous(breaks = seq(ymin, ymax, by = 1))
 
     plotly::ggplotly(p)
 
