@@ -184,13 +184,14 @@ personas_max_ratings_grafico <- 10
 
   history_long2 <- history_long2 %>%
     mutate(fecha = as.Date(as.character(tp), "%Y%m%d")) %>%
-    select(fecha, persona, rating)
+    mutate(rango = round((log(rating/const_a)*const_c + const_d),1)) %>%
+    select(fecha, persona, rating, rango)
 
   history_long2 <- history_long2 %>%
     left_join(persona_incluir)
 
 
-# Application -------------------------------------------------------------
+# application -------------------------------------------------------------
 
 
 # user interface ----------------------------------------------------------
@@ -531,10 +532,10 @@ server <- function(input, output, session) {
 
   output$history_plot <- renderPlotly({
 
-    p <- ggplot(history_data(), aes(x = fecha, y = rating, color = persona)) +
+    p <- ggplot(history_data(), aes(x = fecha, y = rango, color = persona)) +
       geom_line() +
       xlab("fecha") +
-      ylab("rating")
+      ylab("rango")
 
     plotly::ggplotly(p)
 
