@@ -122,6 +122,10 @@ personas_max_ratings_grafico <- 10
   mydf <- mydf %>%
     arrange(desc(fecha_hora))
 
+  # data for games page
+  gamesdf <- mydf %>%
+    select(fecha_hora, tablero, handicap, persona, color, oponente, victoria, comentario)
+
   # data for ratings calculation
 
   ratings_data <- mydf %>%
@@ -621,7 +625,7 @@ server <- function(input, output, session) {
   games_data <- reactive({
 
 
-    games_data <- mydf
+    games_data <- gamesdf
 
     if (is.null(input$persona_Input_games)==FALSE) {
       games_data <- games_data %>%
