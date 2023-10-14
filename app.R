@@ -540,7 +540,7 @@ server <- function(input, output, session) {
 
     resumen_data <- resumen_data %>%
       group_by(persona, oponente, tablero, handicap) %>%
-      summarize(games = n(), victorias = sum(victoria), tasa_victoria = round(victorias / games, 2)) %>%
+      summarize(partidas = n(), victorias = sum(victoria), tasa_victoria = round(victorias / partidas, 2)) %>%
       ungroup()
 
     resumen_data
@@ -550,7 +550,7 @@ server <- function(input, output, session) {
   output$resumen_data_table <- DT::renderDataTable(DT::datatable({
 
     data <- resumen_data() %>%
-      arrange(desc(games), desc(tasa_victoria))
+      arrange(desc(partidas), desc(tasa_victoria))
 
     data
 
