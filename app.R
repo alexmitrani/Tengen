@@ -35,6 +35,13 @@ handicap_factor_19x19 <- 1
 # cantidad mínima de partidas para incluir en la página de ratings:
 partidas_requeridas_para_rating <- 3
 
+# referencia: https://github.com/online-go/online-go.com/blob/2e9ccea12b16fefeba8fb86e0312875964e16857/src/lib/rank_utils.ts#L50C1-L51C17
+const_a <- 525
+const_c <- 23.15
+
+# ajustado considerando los rangos de Avelio, Nico, Alex y Pandora
+const_d <- -28.5
+
 
 # data processing ---------------------------------------------------------
 
@@ -136,7 +143,10 @@ partidas_requeridas_para_rating <- 3
            derrotas = Loss)
 
   resultados <- resultados %>%
-    select(persona, rating, desviación, partidas, victorias, derrotas)
+    mutate(rango = round((log(rating/const_a)*const_c + const_d),1))
+
+  resultados <- resultados %>%
+    select(persona, rating, rango, desviación, partidas, victorias, derrotas)
 
   resultados <- resultados %>%
     mutate(rating = round(rating, 0),
