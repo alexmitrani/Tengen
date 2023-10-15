@@ -36,8 +36,10 @@ handicap_factor_19x19 <- 1
 const_a <- 525
 const_c <- 23.15
 
-# ajustado considerando los rangos de Avelio, Nico, Alex y Pandora
-const_d <- -28.5
+# ajustado considerando los rangos de Avelio, Nico, Alex y Pandora, y que 1800 sea rango 0. 
+const_d <- -28.52412622
+
+# rango = log(rating/const_a)*const_c + const_d
 
 # máximo de personas para mostrar a la vez en el gráfico
 personas_max_ratings_grafico <- 10
