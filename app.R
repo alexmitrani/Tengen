@@ -36,7 +36,7 @@ handicap_factor_19x19 <- 1
 const_a <- 525
 const_c <- 23.15
 
-# ajustado considerando los rangos de Avelio, Nico, Alex y Pandora, y que 1918 sea rango 0.
+# ajustado considerando que rating 1918 sea rango 0 al igual ue en OGS. Valores mayores o iguales a 1918 se consideran dan, menores kyu.
 const_d <- -30
 
 # rango = log(rating/const_a)*const_c + const_d
