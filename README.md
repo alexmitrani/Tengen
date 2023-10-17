@@ -24,7 +24,7 @@ const_c = 23.15
 const_d = -30
 
 
-El valor de const_d se ajustó considerando que rating 1918 sea rango 0 al igual ue en OGS. Rangos mayores o iguales a 0 (rating 1918) se consideran dan, menores kyu.
+Los valores de las constantes se escogieron para comparabilidad con el sistema de rating OGS. El valor de const_d se ajustó considerando que rating 1918 sea rango 0 al igual ue en OGS. Rangos mayores o iguales a 0 (rating 1918) se consideran dan, menores kyu.
 
 El cálculo de rating se considera los siguientes factores de equivalencia entre las piedras handicap en los distintos tamaños de tablero: 
 
