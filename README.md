@@ -10,18 +10,33 @@ Se puede seleccionar una o más personas para filtrar y enfocar los contenidos m
 
 ## Ratings
 
+### Metodología 
+
 Los ratings se calculan con la metodología Glicko-2 utilizando el paquete R  PlayerRatings. Los ratings se transforman en rangos mediante la fórmula: 
 
 rango = log(rating/const_a)*const_c + const_d
 
+const_a <- 525
+const_c <- 23.15
+const_d <- -30
 
+El valor de const_d se ajustó considerando que rating 1918 sea rango 0 al igual ue en OGS. Rangos mayores o iguales a 0 (rating 1918) se consideran dan, menores kyu.
 
+El cálculo de rating se considera los siguientes factores de equivalencia entre las piedras handicap en los distintos tamaños de tablero: 
+
+handicap_factor_9x9 = 4
+handicap_factor_13x13 = (16/9)
+handicap_factor_19x19 = 1
+
+Hay un factor de escala implícito que tiene valor 1.0. Más adelante cuando hay más datos se debería realizar un ejercicio de calibración y validación para optimizar algunos de los supuestos considerando el poder predictivo del sistema. 
 
 ### Gráfico
 
 Se muestra la evolución del rango de cada persona, con el rango en el eje-y y la fecha en el eje-x. Si no se especifican personas, se muestran las líneas de las 10 personas más fuertes segun los ratings más actualizados. 
 
 ### Tabla de datos
+
+Se muestra para cada persona el rango,  el rating, la desviación del rating (indica el nivel de incertidumbre), y sus cantidades de partidas, victorias y derrotas. 
 
 ## Resumen
 
@@ -30,6 +45,9 @@ Resumen de las partidas por persona, oponente, tamaño del tablero y handicap. M
 ## Partidas
 
 Se muestran los datos detallados de todas las partidas, en orden descendiente de fecha/hora - los casos más recientes arriba. Hay una fila por persona-partida, es decir dos filas por partida. 
+
+# Referencias
+ https://github.com/online-go/online-go.com/blob/2e9ccea12b16fefeba8fb86e0312875964e16857/src/lib/rank_utils.ts#L50C1-L51C17
 
 
 
