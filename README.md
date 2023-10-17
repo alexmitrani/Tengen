@@ -16,17 +16,26 @@ Los ratings se calculan con la metodología Glicko-2 utilizando el paquete R  Pl
 
 rango = log(rating/const_a)*const_c + const_d
 
+
 const_a <- 525
+
 const_c <- 23.15
+
 const_d <- -30
+
 
 El valor de const_d se ajustó considerando que rating 1918 sea rango 0 al igual ue en OGS. Rangos mayores o iguales a 0 (rating 1918) se consideran dan, menores kyu.
 
 El cálculo de rating se considera los siguientes factores de equivalencia entre las piedras handicap en los distintos tamaños de tablero: 
 
+
 handicap_factor_9x9 = 4
+
 handicap_factor_13x13 = (16/9)
+
 handicap_factor_19x19 = 1
+
+
 
 Hay un factor de escala implícito que tiene valor 1.0. Más adelante cuando hay más datos se debería realizar un ejercicio de calibración y validación para optimizar algunos de los supuestos considerando el poder predictivo del sistema. 
 
