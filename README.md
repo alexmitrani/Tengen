@@ -12,7 +12,7 @@ Se puede seleccionar una o más personas para filtrar y enfocar los contenidos m
 
 ## Resumen
 
-Resumen de las 
+Resumen de las partidas por persona, oponente, tamaño del tablero y handicap. Muestra los totaled de partidas, victorias, derrotas, y la tasa de victoria en cada caso.  
 
 ## Partidas
 
