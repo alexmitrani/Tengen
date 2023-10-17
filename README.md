@@ -63,9 +63,13 @@ https://cran.r-project.org/web/packages/PlayerRatings/index.html
 
 https://www.englishchess.org.uk/wp-content/uploads/2012/04/ratings.pdf
 
- https://web.archive.org/web/20231014034254/https://forums.online-go.com/t/ranking-and-handicaps/17739/26?u=alemitrani
+
+http://www.glicko.net/research/dpcmsv.pdf
 
  https://github.com/online-go/online-go.com/blob/2e9ccea12b16fefeba8fb86e0312875964e16857/src/lib/rank_utils.ts#L50C1-L51C17
+
+
+https://web.archive.org/web/20231014034254/https://forums.online-go.com/t/ranking-and-handicaps/17739/26?u=alemitrani
 
 
 
