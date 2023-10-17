@@ -10,7 +10,13 @@ Se puede seleccionar una o más personas para filtrar y enfocar los contenidos m
 
 ## Ratings
 
+Los ratings se calculan con la metodología Glicko-2 utilizando el paquete R  PlayerRatings. Los ratings se transforman en rangos mediante la fórmula: 
+
+
+
 ### Gráfico
+
+Se muestra la evolución del rango de cada persona, con el rango en el eje-y y la fecha en el eje-x. Si no se especifican personas, se muestran las líneas de las 10 personas más fuertes segun los ratings más actualizados. 
 
 ### Tabla de datos
 
@@ -20,7 +26,9 @@ Resumen de las partidas por persona, oponente, tamaño del tablero y handicap. M
 
 ## Partidas
 
-Se muestran los datos desagregados de las partidas, en orden descendiente de fecha - los casos más recientes arriba. Hay una fila por persona-partida, es decir dos filas por partida. 
+Se muestran los datos detallados de todas las partidas, en orden descendiente de fecha/hora - los casos más recientes arriba. Hay una fila por persona-partida, es decir dos filas por partida. 
+
+
 
 
 
