@@ -12,6 +12,9 @@ Se puede seleccionar una o más personas para filtrar y enfocar los contenidos m
 
 Los ratings se calculan con la metodología Glicko-2 utilizando el paquete R  PlayerRatings. Los ratings se transforman en rangos mediante la fórmula: 
 
+rango = log(rating/const_a)*const_c + const_d
+
+
 
 
 ### Gráfico
