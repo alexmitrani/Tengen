@@ -23,11 +23,27 @@ const_c = 23.15
 
 const_d = -30
 
-
 Los valores de las constantes se escogieron para comparabilidad con el sistema de rating OGS. El valor de const_d se ajustó considerando que rating 1918 sea rango 0 al igual ue en OGS. Rangos mayores o iguales a 0 (rating 1918) se consideran dan, menores kyu.
 
-El cálculo de rating se considera los siguientes factores de equivalencia entre las piedras handicap en los distintos tamaños de tablero: 
+Se puede calcular el valor de 1 unidad de rango en unidades del rating así: 
 
+rango1 = log(rating1/const_a)*const_c + const_d
+
+rango2 = log(rating2/const_a)*const_c + const_d
+
+(rango1 - rango2) = const_c*log(rating1/rating2)
+
+Cuando rango1 - rango2 = 1: 
+
+rating1 = exp(1/const_c)*rating2
+
+rating1 - rating2 = exp(1/const_c)*rating2 - rating2
+
+rating1 - rating2 = rating2(exp(1/const_c)-1)
+
+Cuando rating2 = 1500 y rango1 - rango2 = 1, rating1 - rating2 = 66.21465
+
+El cálculo de rating se considera los siguientes factores de equivalencia entre las piedras handicap en los distintos tamaños de tablero: 
 
 handicap_factor_9x9 = 4
 
