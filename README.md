@@ -43,6 +43,8 @@ rating1 - rating2 = rating2(exp(1/const_c)-1)
 
 Cuando rating2 = 1500 y rango1 - rango2 = 1, rating1 - rating2 = 66.21465
 
+rating_por_unidad_handicap = 66.21465
+
 El cálculo de rating se considera los siguientes factores de equivalencia entre las piedras handicap en los distintos tamaños de tablero: 
 
 handicap_factor_9x9 = 4
@@ -51,9 +53,9 @@ handicap_factor_13x13 = (16/9)
 
 handicap_factor_19x19 = 1
 
+El handicap entre en el cálculo del rating en unidades de rating : 
 
-
-Hay un factor de escala implícito que tiene valor 1.0. Más adelante cuando hay más datos se debería realizar un ejercicio de calibración y validación para optimizar algunos de los supuestos considerando el poder predictivo del sistema. 
+handicap_rating = handicap*handicap_factor*rating_por_unidad_handicap
 
 ### Gráfico
 
