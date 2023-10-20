@@ -77,3 +77,11 @@ Resumen de las partidas por persona, oponente, tamaño del tablero y handicap. M
 Se muestran los datos detallados de todas las partidas, en orden descendiente de fecha/hora - los casos más recientes arriba. Hay una fila por persona-partida, es decir dos filas por partida.
 
 # Referencias
+
+alemitrani, gennan, flovo, and Atorrante. 2023. \"Ranking and Handicaps.\" <https://web.archive.org/web/20231014034254/https://forums.online-go.com/t/ranking-and-handicaps/17739/26?u=alemitrani>.
+
+Glickman, Mark E. 2001. \"Dynamic Paired Comparison Models with Stochastic Variances.\" *Journal of Applied Statistics* 28 (6): 673--89. <https://doi.org/10.1080/02664760120059219>.
+
+Online-Go.com. 2023. *Rank_utils.ts*. <https://github.com/online-go/online-go.com/blob/2e9ccea12b16fefeba8fb86e0312875964e16857/src/lib/rank_utils.ts#L50C1-L51C17>.
+
+Stephenson, Alec, and Jeff Sonas. 2020. *PlayerRatings: Dynamic Updating Methods for Player Ratings Estimation*. <https://cran.r-project.org/web/packages/PlayerRatings/index.html>.
