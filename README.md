@@ -22,7 +22,7 @@ const_c = 23.15
 
 const_d = -30
 
-Los valores de las constantes se escogieron para comparabilidad con el sistema de rating OGS. El valor de const_d se ajustó considerando que rating 1918 sea rango 0 al igual ue en OGS. Rangos mayores o iguales a 0 (rating 1918) se consideran dan, menores kyu.
+Los valores de las constantes se escogieron para comparabilidad con el sistema de rating OGS. El valor de const_d se ajustó considerando que rating 1918 sea rango 0 al igual que en OGS. Rangos mayores o iguales a 0 (rating 1918) se consideran dan, menores kyu. Se debe sumar 1 a los rangos positivos para obtener el rango dan - por ejemplo un rango de 0.5 se considera 1.5 dan. Se considera un rango mínimo de -30 (30 kyu).
 
 Se puede calcular el valor de 1 unidad de rango en unidades del rating así:
 
