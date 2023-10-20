@@ -120,7 +120,7 @@ personas_max_ratings_grafico <- 10
            )
 
   mydf <- mydf %>%
-    mutate(handicap_adjo = handicap*handicap_factor*rating_por_unidad_handicap)
+    mutate(handicap_rating = handicap*handicap_factor*rating_por_unidad_handicap)
 
   mydf <- mydf %>%
     arrange(desc(fecha_hora))
@@ -134,7 +134,7 @@ personas_max_ratings_grafico <- 10
   mydf <- mydf %>%
     filter(color=="negro")
 
-  handicap_vector <- as.vector(mydf$handicap_adjo)
+  handicap_vector <- as.vector(mydf$handicap_rating)
 
   ratings_data <- mydf %>%
     mutate(tp = as.integer(format(fecha_hora, "%Y%m%d"))) %>%
