@@ -28,6 +28,7 @@ thematic_shiny(font = "auto")
 # detalles sobre los supuestos adoptados y discusión de otras opciones:
 # https://web.archive.org/web/20231014034254/https://forums.online-go.com/t/ranking-and-handicaps/17739/26?u=alemitrani
 
+rating_por_unidad_handicap <- 66.21465
 handicap_factor_9x9 <- 4
 handicap_factor_13x13 <- (16/9)
 handicap_factor_19x19 <- 1
@@ -119,7 +120,7 @@ personas_max_ratings_grafico <- 10
            )
 
   mydf <- mydf %>%
-    mutate(handicap_adj = handicap*handicap_factor)
+    mutate(handicap_adjo = handicap*handicap_factor*rating_por_unidad_handicap)
 
   mydf <- mydf %>%
     arrange(desc(fecha_hora))
@@ -130,12 +131,15 @@ personas_max_ratings_grafico <- 10
 
   # data for ratings calculation
 
+  mydf <- mydf %>%
+    filter(color=="negro")
+
+  handicap_vector <- as.vector(mydf$handicap_adjo)
+
   ratings_data <- mydf %>%
-    mutate(tp = as.integer(format(mydf$fecha_hora, "%Y%m%d"))) %>%
-    filter(color=="negro") %>%
+    mutate(tp = as.integer(format(fecha_hora, "%Y%m%d"))) %>%
     select(tp, persona, oponente, victoria)
 
-  handicap_vector <- as.vector(mydf$handicap_adj)
   sobj <- glicko2(ratings_data, init = c(1500,350,0.06), gamma = handicap_vector, history = TRUE)
   resultados <- sobj[["ratings"]]
 
