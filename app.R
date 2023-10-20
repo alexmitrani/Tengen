@@ -155,6 +155,10 @@ personas_max_ratings_grafico <- 10
   resultados <- resultados %>%
     mutate(rango = round((log(rating/const_a)*const_c + const_d),1))
 
+  # mínimo rango 30 kyu
+  resultados <- resultados %>%
+    mutate(rango = ifelse(rango < -30, -30, rango))
+
   resultados <- resultados %>%
     select(persona, rating, rango, desviación, partidas, victorias, derrotas)
 
