@@ -52,7 +52,7 @@ handicap_factor_13x13 = (16/9)
 
 handicap_factor_19x19 = 1
 
-El handicap entre en el cálculo del rating en unidades de rating:
+El handicap entra en el cálculo del rating en unidades de rating:
 
 handicap_rating = handicap\*handicap_factor\*rating_por_unidad_handicap
 
