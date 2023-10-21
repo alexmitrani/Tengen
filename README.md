@@ -12,7 +12,11 @@ Se puede seleccionar una o más personas para filtrar y enfocar los contenidos m
 
 ### Metodología
 
-Los ratings se calculan con la metodología Glicko-2 [@glickman2001] utilizando el paquete R PlayerRatings [@stephenson2020]. Los ratings se transforman en rangos mediante la fórmula:
+Los ratings se calculan con la metodología Glicko-2 [@glickman2001] utilizando el paquete R PlayerRatings [@stephenson2020]. 
+
+Cada persona nueva al sistema se inicializa con rating de 1500, desviación 350 y volatilidad 0.06.  
+
+Los ratings se transforman en rangos mediante la fórmula:
 
 rango = log(rating/const_a)\*const_c + const_d
 
