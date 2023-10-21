@@ -20,13 +20,15 @@ Los ratings se transforman en rangos mediante la fórmula:
 
 rango = log(rating/const_a)\*const_c + const_d
 
+donde: 
+
 const_a = 525
 
 const_c = 23.15
 
 const_d = -30
 
-Los valores de las constantes se escogieron para comparabilidad con el sistema de rating OGS [@online-go.com2023]. El valor de const_d se ajustó considerando que rating 1918 sea rango 0 al igual que en OGS. Rangos mayores o iguales a 0 (rating 1918) se consideran dan, menores kyu. Se debe sumar 1 a los rangos positivos para obtener el rango dan - por ejemplo un rango de 0.5 se considera 1.5 dan. Se considera un rango mínimo de -30 (30 kyu).
+Los valores de las constantes y los valores iniciales se escogieron para comparabilidad con el sistema de rating OGS [@online-go.com2023]. El valor de const_d se ajustó considerando que rating 1918 sea rango 0 al igual que en OGS. Rangos mayores o iguales a 0 (rating 1918) se consideran dan, menores kyu. Se debe sumar 1 a los rangos positivos para obtener el rango dan - por ejemplo un rango de 0.5 se considera 1.5 dan. Se considera un rango mínimo de -30 (30 kyu).
 
 El handicap se considera como una modificación del rating y se mide en las mismas unidades que el rating [@glickman2001].
 
