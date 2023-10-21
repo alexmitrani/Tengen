@@ -24,6 +24,8 @@ const_d = -30
 
 Los valores de las constantes se escogieron para comparabilidad con el sistema de rating OGS [@online-go.com2023]. El valor de const_d se ajustó considerando que rating 1918 sea rango 0 al igual que en OGS. Rangos mayores o iguales a 0 (rating 1918) se consideran dan, menores kyu. Se debe sumar 1 a los rangos positivos para obtener el rango dan - por ejemplo un rango de 0.5 se considera 1.5 dan. Se considera un rango mínimo de -30 (30 kyu).
 
+El handicap se considera como una modificación del rating y se mide en las mismas unidades que el rating [@glickman2001].
+
 Se puede calcular el valor de 1 unidad de rango en unidades del rating así:
 
 rango1 = log(rating1/const_a)\*const_c + const_d
@@ -74,9 +76,9 @@ Se muestran los datos detallados de todas las partidas, en orden descendiente de
 
 # Referencias
 
-alemitrani, gennan, flovo, and Atorrante. 2023. \"Ranking and Handicaps.\" <https://web.archive.org/web/20231014034254/https://forums.online-go.com/t/ranking-and-handicaps/17739/26?u=alemitrani>.
+alemitrani, gennan, flovo, and Atorrante. 2023. "Ranking and Handicaps." <https://web.archive.org/web/20231014034254/https://forums.online-go.com/t/ranking-and-handicaps/17739/26?u=alemitrani>.
 
-Glickman, Mark E. 2001. \"Dynamic Paired Comparison Models with Stochastic Variances.\" *Journal of Applied Statistics* 28 (6): 673--89. <https://doi.org/10.1080/02664760120059219>.
+Glickman, Mark E. 2001. "Dynamic Paired Comparison Models with Stochastic Variances." *Journal of Applied Statistics* 28 (6): 673--89. <https://doi.org/10.1080/02664760120059219>.
 
 Online-Go.com. 2023. *Rank_utils.ts*. <https://github.com/online-go/online-go.com/blob/2e9ccea12b16fefeba8fb86e0312875964e16857/src/lib/rank_utils.ts#L50C1-L51C17>.
 
