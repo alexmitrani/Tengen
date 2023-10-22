@@ -125,7 +125,7 @@ personas_max_ratings_grafico <- 10
   mydf <- mydf %>%
     arrange(desc(fecha_hora))
 
-  # data for games page
+  # data for games and summary pages
   gamesdf <- mydf %>%
     select(fecha_hora, tablero, handicap, persona, color, oponente, victoria, comentario)
 
@@ -462,47 +462,6 @@ server <- function(input, output, session) {
 
   })
 
-  # menus --------------------------------------------------------------------
-
-  # output$oponente_Input_games <- renderUI({
-  #
-  #   menudata <- mydf %>%
-  #     arrange(desc(fecha_hora))
-  #
-  #   if (is.null(input$persona_Input_games)==FALSE) {
-  #     menudata <- menudata %>%
-  #       filter(persona %in% input$persona_Input_games) %>%
-  #       arrange(desc(fecha_hora))
-  #   }
-  #
-  #   selectizeInput("oponente_Input_games", "oponente:",
-  #                  choices = c(unique(menudata$oponente)), multiple =TRUE)
-  #
-  # })
-  #
-  # output$tablero_Input_games <- renderUI({
-  #
-  #   menudata <- mydf %>%
-  #     arrange(desc(fecha_hora))
-  #
-  #   if (is.null(input$persona_Input_games)==FALSE) {
-  #     menudata <- menudata %>%
-  #       filter(persona %in% input$persona_Input_games) %>%
-  #       arrange(desc(fecha_hora))
-  #   }
-  #
-  #   if (is.null(input$oponente_Input_games)==FALSE) {
-  #     menudata <- menudata %>%
-  #       filter(oponente %in% input$oponente_Input_games) %>%
-  #       arrange(desc(fecha_hora))
-  #   }
-  #
-  #   selectizeInput("tablero_Input_games", "tablero:",
-  #                  choices = c(unique(menudata$tablero)), multiple =TRUE)
-  #
-  # })
-
-
   # estado ------------------------------------------------------------------
 
   # datos generales
@@ -589,25 +548,13 @@ server <- function(input, output, session) {
 
   resumen_data <- reactive({
 
-    resumen_data <- mydf
+    resumen_data <- gamesdf
 
     if (is.null(input$persona_Input_games)==FALSE) {
       resumen_data <- resumen_data %>%
         filter(persona %in% input$persona_Input_games)
 
     }
-
-    # if (is.null(input$oponente_Input_games)==FALSE) {
-    #   resumen_data <- resumen_data %>%
-    #     filter(oponente %in% input$oponente_Input_games)
-    #
-    # }
-    #
-    # if (is.null(input$tablero_Input_games)==FALSE) {
-    #   resumen_data <- resumen_data %>%
-    #     filter(tablero %in% input$tablero_Input_games)
-    #
-    # }
 
     resumen_data <- resumen_data %>%
       group_by(persona, oponente, tablero, handicap) %>%
@@ -630,7 +577,7 @@ server <- function(input, output, session) {
 
 
 
-  # games -------------------------------------------------------------------
+  # partidas -------------------------------------------------------------------
 
   games_data <- reactive({
 
