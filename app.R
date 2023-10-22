@@ -164,7 +164,8 @@ personas_max_ratings_grafico <- 10
 
   resultados <- resultados %>%
     mutate(rating = round(rating, 0),
-           desviación = round(desviación, 0))
+           desviación = round(desviación, 0),
+           tasa_victoria = round(victorias/partidas, 2))
 
   persona_incluir <- resultados %>%
     arrange(desc(partidas)) %>%
@@ -225,11 +226,7 @@ ui <- fluidPage(
     tags$br(),
     img(src = "tengen.png", height = 114, width = 344),
     tags$br(),
-    tags$br(),
-    # Para buscar nuevos datos de la planilla de entrada de datos
-    actionButton("actualizar", "Actualizar"),
-    tags$br(),
-    tags$br(),
+    tags$br()
   ),
 
   mainPanel(
@@ -379,88 +376,6 @@ ui <- fluidPage(
 server <- function(input, output, session) {
 
   session$onSessionEnded(stopApp)
-
-
-# actualizar datos --------------------------------------------------------
-
-  observeEvent(input$actualizar, {
-
-    mydf <- gsheet2tbl('docs.google.com/spreadsheets/d/1WSHIHtk_oKzA5kruweD_3g3OH7DseTsgTLhEFTHsvFQ')
-
-    colnames(mydf)[1]="fecha_hora"
-    colnames(mydf)[3]="persona.1"
-    colnames(mydf)[4]="persona.2"
-    colnames(mydf)[5]="tablero"
-    colnames(mydf)[6]="handicap"
-    colnames(mydf)[7]="victoria"
-    colnames(mydf)[8]="comentario"
-
-    mydf <- mydf %>%
-      select(fecha_hora, persona.1, persona.2, tablero, handicap, victoria, comentario)
-
-    mydf$fecha_hora <- as.POSIXct(mydf$fecha_hora, format="%d/%m/%Y %H:%M:%S", tz = "UTC")
-
-    mydf <- mydf %>%
-      mutate(victoria = ifelse(victoria=="Negro", 1, 2))
-
-    numero_partidas <- nrow(mydf)
-
-    mydf <- mydf %>%
-      pivot_longer(cols = c(persona.1, persona.2), names_to = "color", values_to = "persona")
-
-    mydf <- mydf %>%
-      mutate(color = ifelse(color=="persona.1", 1, 2))
-
-    mydf <- mydf %>%
-      mutate(victoria=ifelse(color==victoria, 1, 0))
-
-    # corrections to persona names
-
-    mydf <- mydf %>%
-      mutate(persona = ifelse(persona=="Anibal", "Aníbal", persona))
-
-    mydf <- mydf %>%
-      mutate(persona = ifelse(persona=="Nicolás", "Nico", persona))
-
-    mydf <- mydf %>%
-      mutate(persona = ifelse(persona=="Panchito", "Francisco", persona))
-
-    # count people
-
-    numero_personas <- nrow(mydf %>% group_by(persona) %>% summarize(count = n()) %>% ungroup())
-
-    # merge on oponente name
-
-    mydf2 <- mydf %>%
-      select(fecha_hora, persona, color) %>%
-      rename(oponente = persona) %>%
-      mutate(color = if_else(color==1, 2, 1))
-
-    mydf <- mydf %>%
-      left_join(mydf2) %>%
-      mutate(color = ifelse(color==1, "negro", "blanco"))
-
-    rm(mydf2)
-
-    # prepare final games data
-
-    mydf <- mydf %>%
-      mutate(comentario = ifelse(substr(comentario, 1, 4)=="http", paste0("<a href='",  comentario, "' target='_blank'>", comentario, "</a>"), comentario))
-
-    mydf <- mydf %>%
-      select(fecha_hora, tablero, handicap, persona, color, oponente, victoria, comentario)
-
-    mydf <- mydf %>%
-      arrange(desc(fecha_hora))
-
-    date_time_update <- as.character(mydf$fecha_hora[1])
-
-    # Resumen de datos
-
-    summary_text <- paste0("Hay ", numero_partidas, " partidas de ", numero_personas, " personas.")
-    update_text <- paste0("Datos actualizados ", date_time_update, ".")
-
-  })
 
   # estado ------------------------------------------------------------------
 
