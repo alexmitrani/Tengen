@@ -243,7 +243,7 @@ ui <- fluidPage(
 
         column(12,
                selectizeInput("persona_Input_games", "personas:",
-                              sort(unique(mydf$persona)),
+                              sort(unique(gamesdf$persona)),
                               selected=NULL, multiple =TRUE)),
         # column(6,
         #        uiOutput("oponente_Input_games")
