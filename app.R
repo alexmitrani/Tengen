@@ -148,7 +148,7 @@ personas_max_ratings_grafico <- 10
            rating = Rating,
            desviación = Deviation,
            volatilidad = Volatility,
-           partidas = Games,
+           partidos = Games,
            victorias = Win,
            derrotas = Loss)
 
@@ -160,15 +160,15 @@ personas_max_ratings_grafico <- 10
     mutate(rango = ifelse(rango < -30, -30, rango))
 
   resultados <- resultados %>%
-    select(persona, rating, rango, desviación, partidas, victorias, derrotas)
+    select(persona, rating, rango, desviación, partidos, victorias, derrotas)
 
   resultados <- resultados %>%
     mutate(rating = round(rating, 0),
            desviación = round(desviación, 0),
-           tasa_victoria = round(victorias/partidas, 2))
+           tasa_victoria = round(victorias/partidos, 2))
 
   persona_incluir <- resultados %>%
-    arrange(desc(partidas)) %>%
+    arrange(desc(partidos)) %>%
     mutate(incluir = ifelse(row_number()<=personas_max_ratings_grafico, 1, 0)) %>%
     select(persona, incluir)
 
@@ -232,7 +232,7 @@ ui <- fluidPage(
   mainPanel(
 
       tags$div(
-        textOutput("numero_partidas", inline = TRUE), " partidas, ",
+        textOutput("numero_partidos", inline = TRUE), " partidos, ",
         textOutput("numero_personas", inline = TRUE), " personas, actualizado ",
         textOutput("date_time_update", inline = TRUE), "."
       ),
@@ -332,7 +332,7 @@ ui <- fluidPage(
 
                  # games -------------------------------------------------------------------
 
-                 tabPanel("partidas",
+                 tabPanel("partidos",
 
                           tags$br(),
 
@@ -386,9 +386,9 @@ server <- function(input, output, session) {
     numero_personas
   })
 
-  output$numero_partidas <- renderText({
-    numero_partidas <- nrow(mydf %>% group_by(fecha_hora) %>% summarize(count = n()) %>% ungroup())
-    numero_partidas
+  output$numero_partidos <- renderText({
+    numero_partidos <- nrow(mydf %>% group_by(fecha_hora) %>% summarize(count = n()) %>% ungroup())
+    numero_partidos
   })
 
   output$date_time_update <- renderText({
@@ -473,7 +473,7 @@ server <- function(input, output, session) {
 
     resumen_data <- resumen_data %>%
       group_by(persona, oponente, tablero, handicap) %>%
-      summarize(partidas = n(), victorias = sum(victoria), tasa_victoria = round(victorias / partidas, 2)) %>%
+      summarize(partidos = n(), victorias = sum(victoria), tasa_victoria = round(victorias / partidos, 2)) %>%
       ungroup()
 
     resumen_data
@@ -483,7 +483,7 @@ server <- function(input, output, session) {
   output$resumen_data_table <- DT::renderDataTable(DT::datatable({
 
     data <- resumen_data() %>%
-      arrange(desc(partidas), desc(tasa_victoria))
+      arrange(desc(partidos), desc(tasa_victoria))
 
     data
 
@@ -492,7 +492,7 @@ server <- function(input, output, session) {
 
 
 
-  # partidas -------------------------------------------------------------------
+  # partidos -------------------------------------------------------------------
 
   games_data <- reactive({
 
