@@ -66,7 +66,7 @@ handicap_rating = handicap\*handicap_factor\*rating_por_unidad_handicap
 
 ### Gráfico
 
-Se muestra la evolución del rango de cada persona, con el rango en el eje-y y la fecha en el eje-x. Si no se especifican personas, se muestran las líneas de las 10 personas más fuertes segun los ratings más actualizados.
+Se muestra la evolución del rango de cada persona, con el rango en el eje-y y la fecha en el eje-x. Si no se especifican personas, se muestran las líneas de las 10 personas con más partidos registrados.
 
 ### Tabla de datos
 
