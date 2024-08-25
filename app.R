@@ -45,6 +45,9 @@ const_d <- -30
 # máximo de personas para mostrar a la vez en el gráfico
 personas_max_ratings_grafico <- 10
 
+# cantidad minimo de partidos para distinguir entre grupos 1 y 2
+minimo_partidos <- 10
+
 
 # data processing ---------------------------------------------------------
 
@@ -141,7 +144,8 @@ personas_max_ratings_grafico <- 10
     select(tp, persona, oponente, victoria)
 
   sobj <- glicko2(ratings_data, init = c(1500,350,0.06), gamma = handicap_vector, history = TRUE)
-  resultados <- sobj[["ratings"]]
+  resultados <- sobj[["ratings"]] %>%
+    mutate(grupo = ifelse(Games>=minimo_partidos,1,2))
 
   resultados <- resultados %>%
     rename(persona = Player,
@@ -157,10 +161,10 @@ personas_max_ratings_grafico <- 10
 
   # mínimo rango 30 kyu
   resultados <- resultados %>%
-    mutate(rango = ifelse(rango < -30, -30, rango))
+    mutate(rango = ifelse(is.na(rango)==TRUE | rango < -30, -30, rango))
 
   resultados <- resultados %>%
-    select(persona, rating, rango, desviación, partidos, victorias, derrotas)
+    select(grupo, persona, rating, rango, desviación, partidos, victorias, derrotas)
 
   resultados <- resultados %>%
     mutate(rating = round(rating, 0),
@@ -382,7 +386,7 @@ server <- function(input, output, session) {
   # datos generales
 
   output$numero_personas <- renderText({
-    numero_personas <- nrow(mydf %>% group_by(persona) %>% summarize(count = n()) %>% ungroup())
+    numero_personas <- nrow(resultados %>% group_by(persona) %>% summarize(count = n()) %>% ungroup())
     numero_personas
   })
 
@@ -450,7 +454,7 @@ server <- function(input, output, session) {
   output$rating_data_table <- DT::renderDataTable(DT::datatable({
 
     data <- rating_data() %>%
-      arrange(desc(rating))
+      arrange(grupo, desc(rating))
 
     data
 
