@@ -32,3 +32,14 @@ test_that("decisions merge players and ids stay stable", {
   x3 <- build_player_index(r, t, prior_lookup = x2$lookup, decisions = x2$decisions)
   expect_equal(x3$index$player_id, x2$index$player_id)
 })
+
+test_that("decisions sheet gives the player_id of each suggested match", {
+  x <- build_player_index(c("Alex", "Cris"), c("Mitrani Alex"))
+  d <- x$decisions
+  alex_id <- x$lookup$player_id[x$lookup$source == "ratings" & x$lookup$name_variant == "Alex"]
+  expect_equal(d$suggested_match_player_id[d$name_variant == "Mitrani Alex"], alex_id)
+  # using the suggested id as the decision merges the players
+  d$merge_into <- d$suggested_match_player_id
+  x2 <- build_player_index(c("Alex", "Cris"), c("Mitrani Alex"), prior_lookup = x$lookup, decisions = d)
+  expect_equal(nrow(x2$index), 2)
+})

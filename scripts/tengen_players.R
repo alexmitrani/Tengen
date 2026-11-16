@@ -46,7 +46,7 @@ next_ids <- function(n, existing) {
   sprintf("P%03d", start + seq_len(n))
 }
 
-.suggest_for <- function(i, groups) {
+.suggest_for <- function(i, groups, ids = FALSE) {
   g <- groups[i, ]
   if (g$has_ratings || !g$has_tournament) return("")
   toks <- strsplit(g$key, " ")[[1]]
@@ -57,9 +57,9 @@ next_ids <- function(n, existing) {
     close <- stringdist::stringdist(g$key, o$key, method = "jw") < 0.1
     subset <- all(otoks %in% toks) || all(toks %in% otoks)
     if (o$has_ratings && (subset || close)) {
-      out <- c(out, sprintf("%s (ratings)", o$recommended))
+      out <- c(out, if (ids) o$player_id else sprintf("%s (ratings)", o$recommended))
     } else if (!o$has_ratings && (close || (subset && length(otoks) != length(toks)))) {
-      out <- c(out, sprintf("%s (tournament only)", o$recommended))
+      out <- c(out, if (ids) o$player_id else sprintf("%s (tournament only)", o$recommended))
     }
   }
   paste(unique(out), collapse = "; ")
@@ -165,6 +165,8 @@ build_player_index <- function(ratings_names, tournament_names,
   }))
   groups <- groups[order(groups$player_id), ]
   groups$suggested_matches <- vapply(seq_len(nrow(groups)), .suggest_for, character(1), groups = groups)
+  groups$suggested_match_player_id <- vapply(seq_len(nrow(groups)), .suggest_for, character(1),
+                                             groups = groups, ids = TRUE)
   groups$status <- ifelse(groups$has_ratings & groups$has_tournament, "linked",
                    ifelse(groups$has_ratings, "ratings_only", "tournament_only"))
   groups$needs_review <- groups$suggested_matches != ""
@@ -183,11 +185,12 @@ build_player_index <- function(ratings_names, tournament_names,
     source = rep("tournament", nrow(pending)),
     name_variant = vapply(pending$tournament_names, function(x) strsplit(x, "; ")[[1]][1], character(1)),
     player_id = pending$player_id, recommended_name = pending$recommended,
-    suggested_matches = pending$suggested_matches, merge_into = rep("", nrow(pending)), stringsAsFactors = FALSE)
+    suggested_matches = pending$suggested_matches,
+    suggested_match_player_id = pending$suggested_match_player_id, merge_into = rep("", nrow(pending)), stringsAsFactors = FALSE)
   if (!is.null(decisions) && nrow(decisions) > 0) {
     kept <- decisions[!is.na(decisions$merge_into) & trimws(decisions$merge_into) != "", , drop = FALSE]
     kept <- kept[, intersect(names(new_dec), names(kept)), drop = FALSE]
-    for (cn in setdiff(names(new_dec), names(kept))) kept[[cn]] <- ""
+    for (cn in setdiff(names(new_dec), names(kept))) kept[[cn]] <- rep("", nrow(kept))
     kept <- kept[, names(new_dec)]
     new_dec <- rbind(new_dec[!new_dec$name_variant %in% kept$name_variant, ], kept)
   }
