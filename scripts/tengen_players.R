@@ -37,7 +37,8 @@ tournament_to_firstname_surname <- function(x) {
 }
 
 n_accents <- function(x) {
-  nchar(x) - nchar(stringi::stri_trans_general(x, "Latin-ASCII"))
+  ascii <- stringi::stri_trans_general(x, "Latin-ASCII")
+  mapply(function(a, b) sum(strsplit(a, "")[[1]] != strsplit(b, "")[[1]]), x, ascii, USE.NAMES = FALSE)
 }
 
 next_ids <- function(n, existing) {

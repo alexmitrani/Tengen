@@ -43,3 +43,9 @@ test_that("decisions sheet gives the player_id of each suggested match", {
   x2 <- build_player_index(c("Alex", "Cris"), c("Mitrani Alex"), prior_lookup = x$lookup, decisions = d)
   expect_equal(nrow(x2$index), 2)
 })
+
+test_that("accented spelling is preferred for the recommended name", {
+  expect_equal(n_accents(c("Nicolas", "Nicolás")), c(0, 1))
+  x <- build_player_index("Alex", c("Varas Nicolas", "Varas Nicolás"))
+  expect_true("Nicolás Varas" %in% x$index$recommended_name)
+})
