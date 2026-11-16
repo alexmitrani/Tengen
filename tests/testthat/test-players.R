@@ -1,0 +1,34 @@
+test_that("normalisation folds accents and case", {
+  expect_equal(normalize_name("  Álvaro  "), "alvaro")
+  expect_equal(name_key("Nicolás"), "nico"); expect_equal(name_key("Panchito"), "francisco")
+})
+
+test_that("only strong evidence merges players; similar names stay separate", {
+  r <- c("Alvaro", "Álvaro", "Álvaro", "Cris", "Cristian Villacura", "Felipe", "Felipe Bustos", "Alex")
+  t <- c("Villacura Cristian", "Bustos Felipe", "Mitrani Alex", "Kezuka Akiko")
+  x <- build_player_index(r, t)
+  l <- x$lookup
+  id <- function(n, s) l$player_id[l$source == s & l$name_variant == n]
+  expect_equal(id("Alvaro", "ratings"), id("Álvaro", "ratings"))                 # accent fold
+  expect_equal(id("Villacura Cristian", "tournament"), id("Cristian Villacura", "ratings"))
+  expect_equal(id("Bustos Felipe", "tournament"), id("Felipe Bustos", "ratings"))
+  expect_false(id("Cris", "ratings") == id("Cristian Villacura", "ratings"))     # NOT merged
+  expect_false(id("Felipe", "ratings") == id("Felipe Bustos", "ratings"))
+  expect_false(id("Mitrani Alex", "tournament") == id("Alex", "ratings"))        # needs a decision
+  expect_true(x$index$needs_review[x$index$recommended_name == "Alex Mitrani"])
+  expect_equal(length(unique(l$player_id)), nrow(x$index))
+})
+
+test_that("decisions merge players and ids stay stable", {
+  r <- c("Alex", "Cris"); t <- c("Mitrani Alex")
+  x1 <- build_player_index(r, t)
+  dec <- data.frame(source = "tournament", name_variant = "Mitrani Alex", merge_into = "Alex")
+  x2 <- build_player_index(r, t, prior_lookup = x1$lookup, decisions = dec)
+  l <- x2$lookup
+  expect_equal(l$player_id[l$name_variant == "Mitrani Alex"], l$player_id[l$name_variant == "Alex"])
+  expect_equal(x2$lookup$recommended_name[l$name_variant == "Alex"], "Alex Mitrani")
+  expect_equal(l$player_id[l$name_variant == "Cris"], x1$lookup$player_id[x1$lookup$name_variant == "Cris"])
+  # decision is carried over on rebuild
+  x3 <- build_player_index(r, t, prior_lookup = x2$lookup, decisions = x2$decisions)
+  expect_equal(x3$index$player_id, x2$index$player_id)
+})

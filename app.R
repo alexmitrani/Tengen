@@ -13,6 +13,8 @@ library(ggplot2)
 library(plotly)
 library(PlayerRatings)
 
+app_version <- "0.1.0"  # versión de la aplicación y de los scripts de importación (ver README.md)
+
 # theme -------------------------------------------------------------------
 
 my_theme <- bs_theme(bootswatch = "darkly",

@@ -50,3 +50,5 @@ rsconnect/
 .positai
 /data
 CLAUDE.md
+/outputs
+/notes
