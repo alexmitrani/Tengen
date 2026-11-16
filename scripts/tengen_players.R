@@ -171,10 +171,12 @@ build_player_index <- function(ratings_names, tournament_names,
   groups$status <- ifelse(groups$has_ratings & groups$has_tournament, "linked",
                    ifelse(groups$has_ratings, "ratings_only", "tournament_only"))
   groups$needs_review <- groups$suggested_matches != ""
+  groups$needs_surname <- !grepl(" ", trimws(groups$recommended))
   groups$index <- seq_len(nrow(groups))
 
   index <- groups[, c("index", "player_id", "recommended", "ratings_names",
-                      "tournament_names", "status", "needs_review", "n_games_ratings")]
+                      "tournament_names", "status", "needs_review", "needs_surname",
+                      "n_games_ratings")]
   names(index)[3] <- "recommended_name"
 
   lookup <- vars[, c("source", "name_variant", "player_id", "recommended")]
@@ -195,9 +197,19 @@ build_player_index <- function(ratings_names, tournament_names,
     kept <- kept[, names(new_dec)]
     new_dec <- rbind(new_dec[!new_dec$name_variant %in% kept$name_variant, ], kept)
   }
-  if (is.null(renames) || nrow(renames) == 0) {
-    renames <- data.frame(player_id = character(), new_name = character(), stringsAsFactors = FALSE)
-  }
+  # renames sheet: keep the user's entries and add a blank row for every player that still
+  # needs a surname (single-word recommended name), so the user only has to fill in new_name.
+  old <- if (is.null(renames) || nrow(renames) == 0) NULL else renames[, c("player_id", "new_name")]
+  keep <- if (is.null(old)) character() else old$player_id
+  todo <- index$player_id[index$needs_surname & !index$player_id %in% keep]
+  ids <- c(keep, todo)
+  renames <- data.frame(player_id = ids,
+                        current_name = index$recommended_name[match(ids, index$player_id)],
+                        n_games_ratings = index$n_games_ratings[match(ids, index$player_id)],
+                        new_name = c(if (!is.null(old)) old$new_name, rep(NA_character_, length(todo))),
+                        stringsAsFactors = FALSE)
+  renames <- renames[!is.na(renames$current_name), ]
+  renames <- renames[order(!is.na(renames$new_name), -renames$n_games_ratings), ]
   list(index = index, lookup = lookup, decisions = new_dec, renames = renames)
 }
 

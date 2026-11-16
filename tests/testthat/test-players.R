@@ -49,3 +49,19 @@ test_that("accented spelling is preferred for the recommended name", {
   x <- build_player_index("Alex", c("Varas Nicolas", "Varas Nicolás"))
   expect_true("Nicolás Varas" %in% x$index$recommended_name)
 })
+
+test_that("players without a surname are flagged and listed in the renames template", {
+  x <- build_player_index(c("Alex", "Cris", "Cris"), c("Mitrani Alex"),
+                          decisions = data.frame(source = "tournament", name_variant = "Mitrani Alex", merge_into = "Alex"))
+  expect_equal(x$index$needs_surname[x$index$recommended_name == "Cris"], TRUE)
+  expect_equal(x$index$needs_surname[x$index$recommended_name == "Alex Mitrani"], FALSE)
+  expect_equal(x$renames$current_name, "Cris"); expect_true(is.na(x$renames$new_name))
+  # filling in new_name applies it and keeps the row on rebuild
+  ren <- data.frame(player_id = x$renames$player_id, new_name = "Cris Rojas")
+  x2 <- build_player_index(c("Alex", "Cris", "Cris"), c("Mitrani Alex"), prior_lookup = x$lookup,
+                           decisions = data.frame(source = "tournament", name_variant = "Mitrani Alex", merge_into = "Alex"),
+                           renames = ren)
+  expect_true("Cris Rojas" %in% x2$index$recommended_name)
+  expect_false(any(x2$index$needs_surname))
+  expect_equal(x2$renames$new_name, "Cris Rojas")
+})

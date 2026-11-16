@@ -18,6 +18,19 @@ if (!file.exists(index_file)) stop("Run scripts/build_player_index.R first.", ca
 lookup <- as.data.frame(readxl::read_excel(index_file, sheet = "lookup", col_types = "text"))
 index  <- as.data.frame(readxl::read_excel(index_file, sheet = "index"))
 
+# name checks (warnings only)
+one_word <- index$recommended_name[!grepl(" ", trimws(index$recommended_name))]
+if (length(one_word) > 0) {
+  warning(sprintf("%d players have a recommended name without a surname (fill in 'new_name' in sheet 'renames'): %s%s",
+                  length(one_word), paste(head(one_word, 15), collapse = ", "),
+                  if (length(one_word) > 15) ", ..." else ""), call. = FALSE)
+}
+rk <- normalize_name(index$recommended_name)
+if (anyDuplicated(rk) > 0) {
+  warning("Different player_ids share the same recommended name (merge them in sheet 'decisions'): ",
+          paste(unique(index$recommended_name[rk %in% rk[duplicated(rk)]]), collapse = ", "), call. = FALSE)
+}
+
 ratings <- read_ratings(ratings_file)
 games   <- read_all_tournaments(tournaments_file)
 
